@@ -49,6 +49,112 @@ export default function AssessmentStudio() {
     telemetryRef.current = new TelemetryTracker();
   }, [currentChallengeId, language]);
 
+  // Interactive Cursor Animation
+  useEffect(() => {
+    const spotlight = document.getElementById('cursorSpotlight');
+    const ring = document.getElementById('cursorRing');
+    const dot = document.getElementById('cursorDot');
+    if (!spotlight || !ring || !dot) return;
+
+    if (window.matchMedia('(hover: none)').matches) {
+      spotlight.style.display = 'none';
+      ring.style.display = 'none';
+      dot.style.display = 'none';
+      return;
+    }
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let ringX = mouseX;
+    let ringY = mouseY;
+    let spotX = mouseX;
+    let spotY = mouseY;
+    let isHovering = false;
+    let isMouseDown = false;
+    let isVisible = false;
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      if (!isVisible) {
+        isVisible = true;
+        spotlight.style.opacity = '1';
+        ring.style.opacity = '1';
+        dot.style.opacity = '1';
+      }
+
+      dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+
+      const card = (e.target as HTMLElement).closest('.spotlight-card') as HTMLElement;
+      if (card) {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+        card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+      }
+    };
+
+    const onMouseLeave = () => {
+      isVisible = false;
+      spotlight.style.opacity = '0';
+      ring.style.opacity = '0';
+      dot.style.opacity = '0';
+    };
+
+    const onMouseEnter = () => {
+      isVisible = true;
+      spotlight.style.opacity = '1';
+      ring.style.opacity = '1';
+      dot.style.opacity = '1';
+    };
+
+    const onMouseDown = () => { isMouseDown = true; };
+    const onMouseUp = () => { isMouseDown = false; };
+
+    const onMouseOver = (e: MouseEvent) => {
+      const interactive = (e.target as HTMLElement).closest('button, select, textarea, input, a, [role="button"], .cursor-pointer');
+      if (interactive) {
+        isHovering = true;
+        ring.classList.add('cursor-hover');
+      } else {
+        isHovering = false;
+        ring.classList.remove('cursor-hover');
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseleave', onMouseLeave);
+    window.addEventListener('mouseenter', onMouseEnter);
+    window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mouseover', onMouseOver);
+
+    let animId: number;
+    const renderLoop = () => {
+      ringX += (mouseX - ringX) * 0.22;
+      ringY += (mouseY - ringY) * 0.22;
+      spotX += (mouseX - spotX) * 0.08;
+      spotY += (mouseY - spotY) * 0.08;
+
+      const scale = isMouseDown ? 0.75 : (isHovering ? 1.5 : 1.0);
+      ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) scale(${scale})`;
+      spotlight.style.transform = `translate3d(${spotX}px, ${spotY}px, 0)`;
+
+      animId = requestAnimationFrame(renderLoop);
+    };
+    animId = requestAnimationFrame(renderLoop);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseleave', onMouseLeave);
+      window.removeEventListener('mouseenter', onMouseEnter);
+      window.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mouseover', onMouseOver);
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
   const handleKeystroke = (key: string) => {
     telemetryRef.current.recordKeystroke(key);
   };
@@ -129,6 +235,11 @@ export default function AssessmentStudio() {
 
   return (
     <div className="studio-app min-h-screen flex flex-col text-slate-100">
+      {/* Interactive Cursor Spotlight & Follower Elements */}
+      <div id="cursorSpotlight" />
+      <div id="cursorRing" />
+      <div id="cursorDot" />
+
       {/* Navbar */}
       <Navbar
         challenges={ASSESSMENT_CHALLENGES}
@@ -161,7 +272,7 @@ export default function AssessmentStudio() {
 
         <div className="studio-grid">
           {/* Left Column: Problem & Invariant Specs */}
-          <section className="studio-panel problem-panel">
+          <section className="studio-panel problem-panel spotlight-card">
             <ProblemStatement challenge={currentChallenge} />
           </section>
 
@@ -204,7 +315,7 @@ export default function AssessmentStudio() {
           </section>
 
           {/* Right Column: Intelligent Feedback Engine */}
-          <section className="studio-panel feedback-panel">
+          <section className="studio-panel feedback-panel spotlight-card">
             <IntelligentFeedback
               report={feedbackReport}
               isLoading={isLoadingFeedback}

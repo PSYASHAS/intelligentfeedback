@@ -51,6 +51,89 @@
     ::-webkit-scrollbar-thumb { background: #34363b; border-radius: 99px; }
     ::-webkit-scrollbar-thumb:hover { background: #4a4d52; }
 
+    /* Interactive Cursor Spotlight & Follower Elements */
+    #cursorSpotlight {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 500px;
+      height: 500px;
+      margin-top: -250px;
+      margin-left: -250px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(101, 201, 148, 0.14) 0%, rgba(36, 61, 48, 0.07) 35%, rgba(16, 17, 19, 0) 70%);
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      will-change: transform;
+    }
+    #cursorRing {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 34px;
+      height: 34px;
+      margin-top: -17px;
+      margin-left: -17px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(125, 215, 169, 0.5);
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      will-change: transform;
+    }
+    #cursorRing.cursor-hover {
+      border-color: rgba(125, 215, 169, 0.95);
+      background-color: rgba(101, 201, 148, 0.08);
+      box-shadow: 0 0 18px rgba(101, 201, 148, 0.25);
+    }
+    #cursorDot {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 7px;
+      height: 7px;
+      margin-top: -3.5px;
+      margin-left: -3.5px;
+      border-radius: 50%;
+      background: #65c994;
+      box-shadow: 0 0 10px #65c994, 0 0 18px rgba(101, 201, 148, 0.4);
+      pointer-events: none;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      will-change: transform;
+    }
+
+    /* Reactive Spotlight Hover for Cards */
+    .spotlight-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .spotlight-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: inherit;
+      background: radial-gradient(
+        500px circle at var(--mouse-x, -500px) var(--mouse-y, -500px),
+        rgba(101, 201, 148, 0.075),
+        transparent 55%
+      );
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .spotlight-card:hover::before {
+      opacity: 1;
+    }
+
     .eyebrow {
       display: flex;
       align-items: center;
@@ -104,6 +187,11 @@
   </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-emerald-500/30 selection:text-emerald-200">
+
+  <!-- Ambient Cursor Spotlight & Interactive Follower -->
+  <div id="cursorSpotlight"></div>
+  <div id="cursorRing"></div>
+  <div id="cursorDot"></div>
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
   <header class="border-b border-white/[.07] bg-[#151618]/90 backdrop-blur-xl sticky top-0 z-40 px-5 py-3 shadow-md">
@@ -199,7 +287,7 @@
     </div>
 
     <!-- MISTAKE-TO-MASTERY STEPPER BAR -->
-    <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3">
+    <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3 spotlight-card">
       <div class="flex items-center gap-3">
         <div class="p-2 rounded-xl bg-[#243d30] text-[#8ae0b3]">
           <i data-lucide="compass" class="w-4 h-4"></i>
@@ -254,7 +342,7 @@
       <div class="lg:col-span-5 space-y-4">
         
         <!-- Challenge Overview Card -->
-        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl p-5 shadow-xl space-y-3.5">
+        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl p-5 shadow-xl space-y-3.5 spotlight-card">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <span id="bloomBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border bg-amber-500/10 text-amber-400 border-amber-500/20">
               <i data-lucide="brain" class="w-3.5 h-3.5"></i>
@@ -275,7 +363,7 @@
         </div>
 
         <!-- Beginner Mistake Spotlight Card (High Visual Contrast) -->
-        <div class="bg-gradient-to-br from-rose-950/30 via-[#1b1c1e] to-[#1b1c1e] border border-rose-500/30 rounded-2xl p-5 shadow-xl space-y-2.5">
+        <div class="bg-gradient-to-br from-rose-950/30 via-[#1b1c1e] to-[#1b1c1e] border border-rose-500/30 rounded-2xl p-5 shadow-xl space-y-2.5 spotlight-card">
           <div class="flex items-center gap-2 font-bold text-rose-300 text-sm">
             <div class="p-1.5 rounded-lg bg-rose-500/20 text-rose-400">
               <i data-lucide="alert-triangle" class="w-4 h-4"></i>
@@ -287,7 +375,7 @@
         </div>
 
         <!-- Test Case Expectations Preview -->
-        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl p-5 shadow-xl space-y-3">
+        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl p-5 shadow-xl space-y-3 spotlight-card">
           <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
             <i data-lucide="list-checks" class="w-4 h-4 text-[#82dfad]"></i>
             <span>Edge Cases Evaluated</span>
@@ -314,7 +402,7 @@
       <div class="lg:col-span-7 space-y-4">
         
         <!-- Code Editor Card -->
-        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl overflow-hidden shadow-2xl">
+        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl overflow-hidden shadow-2xl spotlight-card">
           <!-- Editor Header -->
           <div class="flex items-center justify-between px-4 py-3 bg-[#202124] border-b border-[#34363a]">
             <div class="flex items-center gap-2">
@@ -347,7 +435,7 @@
         </div>
 
         <!-- Actionable Formative Feedback & Test Results Panel -->
-        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl overflow-hidden shadow-2xl space-y-0">
+        <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl overflow-hidden shadow-2xl space-y-0 spotlight-card">
           
           <!-- Header Bar -->
           <div class="p-4 bg-[#202124] border-b border-[#34363a] flex items-center justify-between">
