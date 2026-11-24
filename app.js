@@ -226,6 +226,7 @@ function init() {
   renderChallenge(currentChallenge);
   setupLineNumbers();
   updateMasteryBadge();
+  init3DCardTilt();
   lucide.createIcons();
 }
 
@@ -743,6 +744,44 @@ function submitReflectionAnswer() {
   setTimeout(() => {
     closeReflectionModal();
   }, 1800);
+}
+
+// --- SUBTLE 3D CARD TILT ON HOVER (MODERN SAAS AESTHETIC) ---
+function init3DCardTilt() {
+  if (typeof window === 'undefined') return;
+  if (window.matchMedia('(hover: none)').matches) return;
+
+  const cards = document.querySelectorAll('.tilt-card');
+  cards.forEach((card) => {
+    let bounds = null;
+
+    card.addEventListener('mouseenter', () => {
+      bounds = card.getBoundingClientRect();
+      card.classList.remove('tilt-reset');
+    });
+
+    card.addEventListener('mousemove', (e) => {
+      if (!bounds) bounds = card.getBoundingClientRect();
+      const mouseX = e.clientX - bounds.left;
+      const mouseY = e.clientY - bounds.top;
+      const halfWidth = bounds.width / 2;
+      const halfHeight = bounds.height / 2;
+
+      // Subtle tilt: max +/- 3.5 degrees
+      const rotateX = ((mouseY - halfHeight) / halfHeight) * -3.5;
+      const rotateY = ((mouseX - halfWidth) / halfWidth) * 3.5;
+
+      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.01, 1.01, 1.01)`;
+      card.style.boxShadow = `0 ${Math.abs(rotateX) * 2 + 12}px 32px rgba(0, 0, 0, 0.38), 0 0 20px rgba(101, 201, 148, 0.06)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      bounds = null;
+      card.classList.add('tilt-reset');
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      card.style.boxShadow = '';
+    });
+  });
 }
 
 // Start

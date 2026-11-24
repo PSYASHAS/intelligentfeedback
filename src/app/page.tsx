@@ -49,6 +49,59 @@ export default function AssessmentStudio() {
     telemetryRef.current = new TelemetryTracker();
   }, [currentChallengeId, language]);
 
+  // Subtle 3D Card Tilt on Hover
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(hover: none)').matches) return;
+
+    const cards = document.querySelectorAll('.tilt-card');
+    const handlers: Array<{ card: Element; enter: () => void; move: (e: any) => void; leave: () => void }> = [];
+
+    cards.forEach((card) => {
+      let bounds: DOMRect | null = null;
+      const el = card as HTMLElement;
+
+      const enter = () => {
+        bounds = el.getBoundingClientRect();
+        el.classList.remove('tilt-reset');
+      };
+
+      const move = (e: MouseEvent) => {
+        if (!bounds) bounds = el.getBoundingClientRect();
+        const mouseX = e.clientX - bounds.left;
+        const mouseY = e.clientY - bounds.top;
+        const halfWidth = bounds.width / 2;
+        const halfHeight = bounds.height / 2;
+
+        const rotateX = ((mouseY - halfHeight) / halfHeight) * -3.5;
+        const rotateY = ((mouseX - halfWidth) / halfWidth) * 3.5;
+
+        el.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.01, 1.01, 1.01)`;
+        el.style.boxShadow = `0 ${Math.abs(rotateX) * 2 + 12}px 32px rgba(0, 0, 0, 0.38), 0 0 20px rgba(101, 201, 148, 0.06)`;
+      };
+
+      const leave = () => {
+        bounds = null;
+        el.classList.add('tilt-reset');
+        el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        el.style.boxShadow = '';
+      };
+
+      el.addEventListener('mouseenter', enter);
+      el.addEventListener('mousemove', move);
+      el.addEventListener('mouseleave', leave);
+      handlers.push({ card, enter, move, leave });
+    });
+
+    return () => {
+      handlers.forEach(({ card, enter, move, leave }) => {
+        card.removeEventListener('mouseenter', enter);
+        card.removeEventListener('mousemove', move);
+        card.removeEventListener('mouseleave', leave);
+      });
+    };
+  }, [currentChallengeId]);
+
   const handleKeystroke = (key: string) => {
     telemetryRef.current.recordKeystroke(key);
   };
@@ -161,7 +214,7 @@ export default function AssessmentStudio() {
 
         <div className="studio-grid">
           {/* Left Column: Problem & Invariant Specs */}
-          <section className="studio-panel problem-panel">
+          <section className="studio-panel problem-panel tilt-card">
             <ProblemStatement challenge={currentChallenge} />
           </section>
 
@@ -204,7 +257,7 @@ export default function AssessmentStudio() {
           </section>
 
           {/* Right Column: Intelligent Feedback Engine */}
-          <section className="studio-panel feedback-panel">
+          <section className="studio-panel feedback-panel tilt-card">
             <IntelligentFeedback
               report={feedbackReport}
               isLoading={isLoadingFeedback}
