@@ -15,7 +15,7 @@ import { CodeEditor } from '@/components/CodeEditor';
 import { TestRunnerPanel } from '@/components/TestRunnerPanel';
 import { IntelligentFeedback } from '@/components/IntelligentFeedback';
 import { SocraticDefenseModal } from '@/components/SocraticDefenseModal';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, Code2, Sparkles } from 'lucide-react';
 
 export default function AssessmentStudio() {
   const [currentChallengeId, setCurrentChallengeId] = useState<string>(ASSESSMENT_CHALLENGES[0].id);
@@ -128,7 +128,7 @@ export default function AssessmentStudio() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="studio-app min-h-screen flex flex-col text-slate-100">
       {/* Navbar */}
       <Navbar
         challenges={ASSESSMENT_CHALLENGES}
@@ -138,57 +138,79 @@ export default function AssessmentStudio() {
       />
 
       {/* Main 3-Column Studio Layout */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 max-w-[1700px] w-full mx-auto h-[calc(100vh-60px)]">
-        {/* Left Column: Problem & Invariant Specs (3 cols) */}
-        <section className="lg:col-span-3 bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 overflow-hidden flex flex-col h-full shadow-lg">
-          <ProblemStatement challenge={currentChallenge} />
-        </section>
+      <main className="studio-main flex-1 w-full mx-auto">
+        <div className="studio-intro">
+          <div>
+            <div className="eyebrow"><span className="live-dot" /> YOUR LEARNING STUDIO <span className="eyebrow-sep">/</span> SEMESTER 1 CODING</div>
+            <h1>Think it through.<br className="mobile-break" /> <span>Build it yourself.</span></h1>
+            <p>A quiet space to solve hard problems, test your thinking, and see how far you’ve come.</p>
+          </div>
+          <div className="studio-promise">
+            <div className="promise-icon"><Sparkles size={17} /></div>
+            <div>
+              <strong>Made for deep work</strong>
+              <span>One problem at a time. Real understanding.</span>
+            </div>
+          </div>
+        </div>
 
-        {/* Center Column: Code Editor & Execution Runner (5 cols) */}
-        <section className="lg:col-span-5 flex flex-col h-full space-y-2 overflow-hidden">
-          <div className="flex-1 min-h-0">
-            <CodeEditor
-              code={code}
-              onChange={setCode}
-              language={language}
-              onLanguageChange={setLanguage}
-              onExecute={handleRunTests}
-              onDefend={handleLaunchDefense}
-              onReset={handleResetCode}
-              isExecuting={isExecuting}
-              onKeystroke={handleKeystroke}
-              onPaste={handlePaste}
+        <div className="workspace-label">
+          <div><Code2 size={15}/><span>WORKSPACE</span></div>
+          <span className="workspace-challenge">{currentChallenge.title}<i>·</i>{currentChallenge.difficulty}</span>
+        </div>
+
+        <div className="studio-grid">
+          {/* Left Column: Problem & Invariant Specs */}
+          <section className="studio-panel problem-panel">
+            <ProblemStatement challenge={currentChallenge} />
+          </section>
+
+          {/* Center Column: Code Editor & Execution Runner */}
+          <section className="editor-column">
+            <div className="flex-1 min-h-0">
+              <CodeEditor
+                code={code}
+                onChange={setCode}
+                language={language}
+                onLanguageChange={setLanguage}
+                onExecute={handleRunTests}
+                onDefend={handleLaunchDefense}
+                onReset={handleResetCode}
+                isExecuting={isExecuting}
+                onKeystroke={handleKeystroke}
+                onPaste={handlePaste}
+              />
+            </div>
+
+            {/* Test Results Drawer */}
+            <div className="test-panel">
+              <button
+                onClick={() => setShowTestDrawer(!showTestDrawer)}
+                className="test-toggle"
+              >
+                <span>Test Suite Execution ({testSummary ? `${testSummary.passed}/${testSummary.total}` : 'Ready'})</span>
+                {showTestDrawer ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+              </button>
+              {showTestDrawer && (
+                <div className="max-h-56 overflow-y-auto">
+                  <TestRunnerPanel
+                    testResults={testResults}
+                    summary={testSummary}
+                    isExecuting={isExecuting}
+                  />
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Right Column: Intelligent Feedback Engine */}
+          <section className="studio-panel feedback-panel">
+            <IntelligentFeedback
+              report={feedbackReport}
+              isLoading={isLoadingFeedback}
             />
-          </div>
-
-          {/* Test Results Drawer */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-md">
-            <button
-              onClick={() => setShowTestDrawer(!showTestDrawer)}
-              className="w-full flex items-center justify-between px-3.5 py-2 bg-slate-950/70 border-b border-slate-800/80 text-xs text-slate-300 font-semibold hover:bg-slate-900 transition"
-            >
-              <span>Test Suite Execution ({testSummary ? `${testSummary.passed}/${testSummary.total}` : 'Ready'})</span>
-              {showTestDrawer ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-            </button>
-            {showTestDrawer && (
-              <div className="max-h-56 overflow-y-auto">
-                <TestRunnerPanel
-                  testResults={testResults}
-                  summary={testSummary}
-                  isExecuting={isExecuting}
-                />
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Right Column: Intelligent Feedback Engine (4 cols) */}
-        <section className="lg:col-span-4 bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-full shadow-lg">
-          <IntelligentFeedback
-            report={feedbackReport}
-            isLoading={isLoadingFeedback}
-          />
-        </section>
+          </section>
+        </div>
       </main>
 
       {/* Socratic Defense Modal */}

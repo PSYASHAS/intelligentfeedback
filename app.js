@@ -248,13 +248,13 @@ function setViewMode(mode) {
   const educatorStudio = document.getElementById('educatorStudioView');
 
   if (mode === 'student') {
-    studentBtn.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow transition";
-    educatorBtn.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition";
+    studentBtn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#65c994] text-[#132319] shadow transition";
+    educatorBtn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-[#282a2c] transition";
     studentStudio.classList.remove('hidden');
     educatorStudio.classList.add('hidden');
   } else {
-    educatorBtn.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow transition";
-    studentBtn.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition";
+    educatorBtn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#65c994] text-[#132319] shadow transition";
+    studentBtn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-[#282a2c] transition";
     studentStudio.classList.add('hidden');
     educatorStudio.classList.remove('hidden');
     renderEducatorBreakdown();
@@ -266,6 +266,9 @@ function renderChallenge(c) {
   document.getElementById('problemTitle').innerText = c.title;
   document.getElementById('topicBadgeText').innerText = 'Topic: ' + c.targetTopic;
   
+  const labName = document.getElementById('workspaceLabName');
+  if (labName) labName.innerText = c.title;
+
   const bloomMeta = BLOOM_LEVELS[c.bloomLevel] || BLOOM_LEVELS.apply;
   const bloomBadge = document.getElementById('bloomBadge');
   bloomBadge.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${bloomMeta.color}`;
@@ -281,9 +284,9 @@ function renderChallenge(c) {
   const previewContainer = document.getElementById('testCasePreviewContainer');
   if (previewContainer && c.testCases) {
     previewContainer.innerHTML = c.testCases.map(tc => `
-      <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between">
+      <div class="p-2.5 rounded-xl bg-[#101113] border border-[#303236] flex items-center justify-between">
         <span class="text-slate-400">${tc.name}: <code class="text-slate-200">${tc.input}</code></span>
-        <span class="text-emerald-400 font-semibold">Exp: ${tc.expected}</span>
+        <span class="text-[#82dfad] font-semibold">Exp: ${tc.expected}</span>
       </div>
     `).join('');
   }
@@ -333,11 +336,11 @@ function updateMasteryBadge() {
     const el = document.getElementById(`step-${s}`);
     if (el) {
       if (s === stage) {
-        el.className = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-600 text-white shadow-md ring-2 ring-indigo-400/50";
+        el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#65c994] text-[#132319] shadow-md ring-2 ring-[#65c994]/40 transition";
       } else if (steps.indexOf(s) < steps.indexOf(stage)) {
-        el.className = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30";
+        el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#243d30] text-[#8ae0b3] border border-[#3b644b] transition";
       } else {
-        el.className = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs text-slate-400 bg-slate-950 border border-slate-800";
+        el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-slate-400 bg-[#202124] border border-[#343639] transition";
       }
     }
   });
@@ -601,18 +604,18 @@ function renderFormativeFeedbackUI() {
       </div>
 
       <!-- 1. What did I do well? -->
-      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
+      <div class="bg-[#101113] border border-emerald-500/30 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
         <div class="flex items-center gap-2">
-          <div class="p-1 rounded-md bg-emerald-500/20 text-emerald-400">
+          <div class="p-1 rounded-md bg-[#243d30] text-[#8ae0b3]">
             <i data-lucide="thumbs-up" class="w-4 h-4"></i>
           </div>
-          <span class="text-xs uppercase font-extrabold text-emerald-400 tracking-wider">1. What did I do well?</span>
+          <span class="text-xs uppercase font-extrabold text-[#8ae0b3] tracking-wider">1. What did I do well?</span>
         </div>
         <p class="text-sm text-slate-100 leading-relaxed font-normal">${f.wellDone}</p>
       </div>
 
       <!-- 2. What is the problem? -->
-      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
+      <div class="bg-[#101113] border border-rose-500/30 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
         <div class="flex items-center gap-2">
           <div class="p-1 rounded-md bg-rose-500/20 text-rose-400">
             <i data-lucide="help-circle" class="w-4 h-4"></i>
@@ -623,7 +626,7 @@ function renderFormativeFeedbackUI() {
       </div>
 
       <!-- 3. Why did it happen? -->
-      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
+      <div class="bg-[#101113] border border-amber-500/30 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
         <div class="flex items-center gap-2">
           <div class="p-1 rounded-md bg-amber-500/20 text-amber-400">
             <i data-lucide="zap" class="w-4 h-4"></i>
@@ -634,16 +637,16 @@ function renderFormativeFeedbackUI() {
       </div>
 
       <!-- 4. How can I improve? & Next Step -->
-      <div class="bg-gradient-to-br from-indigo-950/40 to-slate-950 border border-indigo-500/30 rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-md">
+      <div class="bg-gradient-to-br from-[#243d30]/30 to-[#101113] border border-[#3b644b]/40 rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-md">
         <div class="flex items-center gap-2">
-          <div class="p-1 rounded-md bg-indigo-500/20 text-indigo-400">
+          <div class="p-1 rounded-md bg-[#243d30] text-[#8ae0b3]">
             <i data-lucide="compass" class="w-4 h-4"></i>
           </div>
-          <span class="text-xs uppercase font-extrabold text-indigo-300 tracking-wider">4. How can I improve?</span>
+          <span class="text-xs uppercase font-extrabold text-[#8ae0b3] tracking-wider">4. How can I improve?</span>
         </div>
         <p class="text-sm text-slate-100 leading-relaxed font-normal">${f.improvement}</p>
-        <div class="mt-3 pt-3 border-t border-indigo-500/20 flex items-start gap-2 text-xs sm:text-sm text-indigo-200">
-          <strong class="font-bold text-indigo-300 flex-shrink-0">Next Action:</strong>
+        <div class="mt-3 pt-3 border-t border-[#3b644b]/30 flex items-start gap-2 text-xs sm:text-sm text-[#a8e7c3]">
+          <strong class="font-bold text-[#8ae0b3] flex-shrink-0">Next Action:</strong>
           <span>${f.nextStep}</span>
         </div>
       </div>
@@ -656,12 +659,12 @@ function resetFeedbackUI() {
   currentFeedbackReport = null;
   document.getElementById('formativeFeedbackContent').innerHTML = `
     <div class="py-12 text-center text-slate-500 space-y-2.5">
-      <div class="p-3 rounded-2xl bg-slate-950 inline-block border border-slate-800">
-        <i data-lucide="sparkles" class="w-8 h-8 text-indigo-400"></i>
+      <div class="p-3 rounded-2xl bg-[#101113] inline-block border border-[#303236]">
+        <i data-lucide="sparkles" class="w-8 h-8 text-[#8ae0b3]"></i>
       </div>
       <p class="text-slate-200 font-semibold text-sm">Ready to Diagnose Your C Solution</p>
-      <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-        Click <strong class="text-indigo-400 font-semibold">Run Tests & Diagnose</strong> above to evaluate your C code against boundary tests and receive structured formative feedback.
+      <p class="text-xs text-[#90948f] max-w-sm mx-auto leading-relaxed">
+        Click <strong class="text-[#8ae0b3] font-semibold">Run Tests & Diagnose</strong> above to evaluate your C code against boundary tests and receive structured formative feedback.
       </p>
     </div>
   `;

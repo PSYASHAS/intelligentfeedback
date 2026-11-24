@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, Brain, Terminal, Sparkles, BookOpen } from 'lucide-react';
+import { ShieldCheck, Brain, BookOpen, ChevronDown } from 'lucide-react';
 import { AssessmentChallenge } from '@/lib/types';
 
 interface NavbarProps {
@@ -20,49 +20,53 @@ export function Navbar({
   const current = challenges.find((c) => c.id === currentChallengeId);
 
   return (
-    <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40 px-4 py-2.5">
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+    <header className="border-b border-white/[.07] bg-[#151618]/90 backdrop-blur-xl sticky top-0 z-40 px-5 py-3.5">
+      <div className="max-w-[1740px] mx-auto flex flex-wrap items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <ShieldCheck className="h-5 w-5 text-white" />
+          <div className="h-10 w-10 rounded-[13px] bg-[#243d30] border border-[#3b644b] flex items-center justify-center shadow-lg shadow-emerald-950/30">
+            <ShieldCheck className="h-5 w-5 text-[#8ae0b3]" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-sm tracking-tight text-white">Mistake-to-Mastery</span>
-              <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                Semester 1 C Programming
-              </span>
+            <div className="flex items-center gap-2.5">
+              <span className="font-bold text-[15px] tracking-tight text-[#f3f3ef]">mindsprint<span className="text-[#7cdda6]">.</span></span>
+              <span className="hidden sm:inline-flex text-[9px] uppercase font-semibold px-2 py-1 rounded-md bg-white/[.04] text-[#9a9e99] border border-white/[.08]">Learning studio · Semester 1 C</span>
             </div>
-            <p className="text-[11px] text-slate-400">Grounded in Bloom's Taxonomy & AI-Resilient Assessment Design</p>
+            <p className="text-[11px] text-[#929691]">Grounded in Bloom's Taxonomy & AI-Resilient Assessment Design</p>
           </div>
         </div>
 
         {/* Challenge Selector */}
-        <div className="flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-slate-400 hidden sm:block" />
-          <select
-            value={currentChallengeId}
-            onChange={(e) => onSelectChallenge(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        <label className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[#202123] border border-white/[.08] text-[#9ea39e]">
+          <BookOpen className="h-4 w-4 text-[#7cd9a7]" />
+          <span className="hidden md:block text-[10px] font-semibold uppercase tracking-wider">Lab Question</span>
+          <select 
+            value={currentChallengeId} 
+            onChange={(e) => onSelectChallenge(e.target.value)} 
+            className="max-w-[320px] bg-transparent text-[#e5e7e3] text-xs font-medium outline-none cursor-pointer"
           >
             {challenges.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title} ({c.difficulty})
+              <option key={c.id} value={c.id} className="bg-[#1b1c1e] text-slate-100">
+                {c.title}
               </option>
             ))}
           </select>
-        </div>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </label>
 
         {/* Live Integrity & Socratic Status */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 text-xs">
-            <Brain className="h-3.5 w-3.5 text-cyan-400" />
-            <span className="text-slate-300">Integrity Confidence:</span>
+          <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#202123] border border-white/[.08] text-xs">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[#72daa4] opacity-50 animate-ping"/>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#72daa4]"/>
+            </span>
+            <Brain className="h-3.5 w-3.5 text-[#9baba0]" />
+            <span className="text-[#b3b7b2]">Integrity</span>
             <span
               className={`font-semibold ${
                 authenticityScore >= 80
-                  ? 'text-emerald-400'
+                  ? 'text-[#82dfad]'
                   : authenticityScore >= 60
                   ? 'text-amber-400'
                   : 'text-rose-400'
