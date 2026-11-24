@@ -1,232 +1,286 @@
-// --- ASSESSMENT DATA BANK ---
-const CHALLENGES = {
-  sanitizer: {
-    id: 'sanitizer',
-    title: 'Challenge 1: Inverted AI Bug Hunt — Sanitize HTML Tags',
-    difficulty: 'Medium',
-    category: 'Inverted AI Bug Hunt',
-    categoryIcon: 'shield-alert',
-    categoryColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    description: "An LLM was asked to write a security-critical function to strip potentially dangerous HTML tags and event attributes from user comments.\n\nThe AI claimed its solution was \"100% secure and production-ready\". However, it contains 3 critical security and algorithmic flaws:\n1. Nested Tag Bypass: Stripping <script> once allows <scr<script>ipt> to reconstruct.\n2. Whitespace/Case Evasion: Fails on <SCRIPT > or multiline tabs.\n3. Catastrophic ReDoS: Uses exponential regex backtracking on unclosed tags.\n\nYour task is to audit and fix the flawed AI implementation.",
-    starterCode: `/**
- * FLAGGED AI GENERATED CODE (DO NOT DEPLOY AS-IS)
- * Goal: Strip all <script> tags and any inline 'on*' event handlers.
+/**
+ * Mistake-to-Mastery Platform (app.js)
+ * Grounded in: "Beyond Detection: Designing AI-Resilient Assessments with Automated Feedback"
+ * Focus: 1st Semester Beginner Coding, Bloom's Taxonomy, AI-Solvability, and 4-Part Formative Feedback.
  */
-function sanitizeInput(html) {
-  if (typeof html !== 'string') return '';
 
-  // AI Flaw 1: Single regex replace with greedy matching (ReDoS + Nested bypass)
-  let cleaned = html.replace(/<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>/gi, '');
+// --- BLOOM'S TAXONOMY CONSTANTS ---
+const BLOOM_LEVELS = {
+  remember: { name: 'Remember', order: 1, color: 'bg-blue-500/10 text-blue-400 border-blue-500/20', desc: 'Recall syntax & language basics' },
+  understand: { name: 'Understand', order: 2, color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', desc: 'Explain how code logic executes' },
+  apply: { name: 'Apply', order: 3, color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', desc: 'Write code to solve straightforward problems' },
+  analyse: { name: 'Analyse', order: 4, color: 'bg-amber-500/10 text-amber-400 border-amber-500/20', desc: 'Find logical bugs & explain root causes' },
+  evaluate: { name: 'Evaluate', order: 5, color: 'bg-purple-500/10 text-purple-400 border-purple-500/20', desc: 'Compare approaches & justify tradeoffs' },
+  create: { name: 'Create', order: 6, color: 'bg-rose-500/10 text-rose-400 border-rose-500/20', desc: 'Design original multi-step programs' }
+};
 
-  // AI Flaw 2: Vulnerable to event handler bypass like <img src=x onerror="alert(1)">
-  cleaned = cleaned.replace(/\\s*on\\w+\\s*=\\s*["'][^"']*["']/gi, '');
+// --- SEMESTER 1 (BEGINNER) CODING CHALLENGES ---
+const BEGINNER_CHALLENGES = {
+  find_max: {
+    id: 'find_max',
+    title: 'Lab 1: Find Maximum Number in an Array',
+    targetTopic: 'Loops, Conditionals, and Array Traversals',
+    bloomLevel: 'analyse', // Evaluates higher-order debugging of negative numbers
+    difficulty: 'Semester 1 — Basic',
+    aiSolvability: 52, // Medium: basic question is 80%, but requiring bug explanation drops AI ease
+    aiSolvabilityCategory: 'Medium (50–64%)',
+    description: `A 1st-semester student wrote a function \`findMax(numbers)\` to find the largest number in a list.\n\nHowever, their code contains a **classic beginner mistake**: it works for positive numbers like \`[3, 7, 2, 9]\`, but fails completely when all numbers in the list are negative (e.g., \`[-8, -3, -10]\`).\n\n**Your Tasks:**\n1. **Identify the mistake**: Why does initializing max to 0 cause errors with negative values?\n2. **Correct the code**: Update the initialization so it handles any list of numbers.\n3. **Test edge cases**: Verify your fix with all-negative lists and single-element lists.`,
+    starterCode: `/**
+ * Lab 1: Find the largest number in the array.
+ * Notice the beginner mistake below:
+ */
+function findMax(numbers) {
+  if (!numbers || numbers.length === 0) {
+    return null; // Empty array guard
+  }
 
-  return cleaned;
-}
+  // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+  let max = 0;
 
-// Write your corrected, resilient version below:
-function safeSanitize(html) {
-  // TODO: Fix nested reconstruction, event handlers, and ensure O(N) linear time
-  return sanitizeInput(html);
+  for (let i = 0; i < numbers.length; i++) {
+    if (numbers[i] > max) {
+      max = numbers[i];
+    }
+  }
+
+  return max;
 }`,
-    aiTrap: {
-      desc: 'Regex string manipulation using single-pass greedy matching.',
-      traps: [
-        'Single pass does not eliminate recursively generated tokens.',
-        'Greedy quantifiers trigger catastrophic regex engine backtracking.',
-        'Context-free grammars cannot be completely parsed with a single regex.'
-      ]
+    flawExplanation: {
+      identifiedMistake: "Initialized `max = 0`. If all numbers in the array are negative (e.g. [-8, -3, -10]), `max` remains 0, which is incorrect because 0 was never in the array!",
+      rootCause: "Mental model assumption that numbers are always positive, failing to consider negative integers.",
+      remediationSuggestion: "Initialize `let max = numbers[0]` (the first element of the array) instead of 0."
     },
-    rubric: [
-      { name: 'Algorithmic Robustness', weight: 35, desc: 'Handles nested and concatenated token evasions.' },
-      { name: 'Complexity & ReDoS Immunity', weight: 25, desc: 'Guarantees linear scan without thread lockup.' },
-      { name: 'Inline Attribute Coverage', weight: 20, desc: 'Strips event handlers like onerror and onclick.' },
-      { name: 'Defense & Rationale Mastery', weight: 20, desc: 'Student can articulate why the AI’s model failed.' }
-    ],
     testCases: [
-      { id: 1, name: 'Basic script removal', run: (fn) => fn('Hello <script>alert(1)</' + 'script> World') === 'Hello  World' },
-      { id: 2, name: 'Nested bypass (<scr<script>ipt>)', run: (fn) => fn('Safe <scr<script>ipt>evil()</' + 'script>text') === 'Safe text' },
-      { id: 3, name: 'Inline handlers with whitespace', run: (fn) => {
-        const res = fn('<img src="avatar.png"   onerror = "malicious()" />');
-        return !res.toLowerCase().includes('onerror') && !res.includes('malicious');
-      }},
-      { id: 4, name: 'ReDoS Resistance (Large malformed string)', run: (fn) => {
-        const start = performance.now();
-        fn('<script ' + 'a'.repeat(500));
-        return (performance.now() - start) < 50;
-      }}
+      { id: 1, name: 'Positive numbers [3, 7, 2, 9]', input: '[3, 7, 2, 9]', expected: '9', run: (fn) => fn([3, 7, 2, 9]) === 9 },
+      { id: 2, name: 'Negative numbers [-8, -3, -10]', input: '[-8, -3, -10]', expected: '-3', run: (fn) => fn([-8, -3, -10]) === -3 },
+      { id: 3, name: 'Single negative number [-42]', input: '[-42]', expected: '-42', run: (fn) => fn([-42]) === -42 },
+      { id: 4, name: 'Mixed numbers [-5, 0, 12, -2]', input: '[-5, 0, 12, -2]', expected: '12', run: (fn) => fn([-5, 0, 12, -2]) === 12 }
     ],
-    defenseQuestions: [
-      { q: "In your sanitization logic, how does your implementation guarantee that an input like '<scr<script>ipt>' cannot reconstruct into an executable script after the inner tag is removed?", key: "loop|iterat|scanner|ast|reconstruct" },
-      { q: "If an attacker uses multiline spacing and tab characters like '<img src=\"x\"\\n\\tonerror\\t=\\t\"alert(1)\">', how does your solution parse the attributes without succumbing to exponential regex backtracking?", key: "backtrack|char|linear|quote|attribute" },
-      { q: "Why is an iterative character scan or state machine generally considered more resilient against ReDoS attacks than complex regular expressions?", key: "state|deterministic|linear|exponential|finite" }
-    ]
+    educatorFeedback: {
+      strength: "Tests basic iteration, variable assignment, and condition checks.",
+      limitation: "Asking only for standard code is easy for AI (85% solvability).",
+      enhancement: "By asking students to explain the negative number bug (Analyse) and test [-8, -3, -10], AI solvability drops to 52%, requiring authentic student reasoning."
+    },
+    reflectionPrompt: "Why is initializing `max = numbers[0]` safer than initializing `max = -999999`?"
   },
-  lru: {
-    id: 'lru',
-    title: 'Challenge 2: Algorithmic Invariant — Strict O(1) LRU Cache',
-    difficulty: 'Medium',
-    category: 'Asymptotic O(1) Invariant',
-    categoryIcon: 'cpu',
-    categoryColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    description: "Implement a Least Recently Used (LRU) Cache supporting get(key) and put(key, value) operations.\n\nStrict Performance Invariant:\n- Both get and put must execute in true average O(1) constant time complexity.\n- Relying on Array.indexOf, splice, or linear searches is strictly disqualified.\n- Evicts least recently used item when capacity is exceeded.",
-    starterCode: `class Node {
-  constructor(key, value) {
-    this.key = key;
-    this.value = value;
-    this.prev = null;
-    this.next = null;
-  }
-}
 
-class LRUCache {
-  constructor(capacity) {
-    this.capacity = capacity;
-    this.cache = new Map();
-    this.head = new Node(0, 0);
-    this.tail = new Node(0, 0);
-    this.head.next = this.tail;
-    this.tail.prev = this.head;
-  }
+  count_vowels: {
+    id: 'count_vowels',
+    title: 'Lab 2: Count Vowels in a String',
+    targetTopic: 'Strings, Conditionals, and Logical Operators',
+    bloomLevel: 'apply',
+    difficulty: 'Semester 1 — Basic',
+    aiSolvability: 68,
+    aiSolvabilityCategory: 'Medium-High (65–74%)',
+    description: `Write a function \`countVowels(text)\` that counts the number of vowels (a, e, i, o, u) in a string.\n\n**Common 1st-Semester Pitfalls:**\n1. **Case Sensitivity**: Forgetting that inputs can have uppercase letters like \`"Apple"\` or \`"HELLO"\`.\n2. **Compound Condition Bug**: Writing \`if (ch === 'a' || 'e' || 'i')\` which is a classic beginner bug where truthy string evaluation always evaluates to true!\n\n**Your Tasks:**\n1. Ensure case insensitivity by converting text to lowercase.\n2. Correctly increment vowel count without string comparison logic traps.`,
+    starterCode: `/**
+ * Lab 2: Count vowels (a, e, i, o, u) in text.
+ * Fix the beginner case-sensitivity and condition flaws below:
+ */
+function countVowels(text) {
+  if (typeof text !== 'string') return 0;
 
-  get(key) {
-    // TODO: Return value if key exists, move to head, else -1
-    return -1;
+  let count = 0;
+  
+  // MISTAKE 1: Missing toLowerCase() ignores uppercase vowels
+  // MISTAKE 2: Watch out for invalid compound if statements
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    
+    // Incomplete check: misses uppercase 'A', 'E', 'I', 'O', 'U'
+    if (ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u') {
+      count++;
+    }
   }
 
-  put(key, value) {
-    // TODO: Insert/update key, maintain capacity eviction
-  }
+  return count;
 }`,
-    aiTrap: {
-      desc: 'Using standard Array methods or plain Object re-ordering.',
-      traps: [
-        'Array.splice() is O(N), degrading performance by 500x at scale.',
-        'Unlinked doubly linked list nodes causing memory leaks.',
-        'Null pointer exceptions at boundary conditions (head/tail).'
-      ]
+    flawExplanation: {
+      identifiedMistake: "Function only checks lowercase characters. It fails on 'Apple' (returns 1 instead of 2) and 'HELLO' (returns 0 instead of 2).",
+      rootCause: "Overlooking string case normalization and ASCII character differences.",
+      remediationSuggestion: "Convert the string or character to lowercase using `text.toLowerCase()` before or during loop checks."
     },
-    rubric: [
-      { name: 'O(1) Time Complexity', weight: 35, desc: 'Dual Map + Doubly Linked List structure.' },
-      { name: 'Eviction Correctness', weight: 25, desc: 'Tracks MRU on both get and put operations.' },
-      { name: 'Boundary Pointer Safety', weight: 20, desc: 'Handles empty or single-node edge states.' },
-      { name: 'Architectural Defense', weight: 20, desc: 'Articulates why singly-linked list fails O(1).' }
-    ],
     testCases: [
-      { id: 1, name: 'Basic Put & Get', run: (LRU) => {
-        const c = new LRU(2); c.put(1, 1); c.put(2, 2); return c.get(1) === 1;
-      }},
-      { id: 2, name: 'Eviction on Capacity Overflow', run: (LRU) => {
-        const c = new LRU(2); c.put(1, 1); c.put(2, 2); c.put(3, 3); return c.get(1) === -1;
-      }},
-      { id: 3, name: 'Update key moves to MRU', run: (LRU) => {
-        const c = new LRU(2); c.put(1, 1); c.put(2, 2); c.get(1); c.put(3, 3); return c.get(2) === -1 && c.get(1) === 1;
-      }}
+      { id: 1, name: 'Simple lowercase: "hello"', input: '"hello"', expected: '2', run: (fn) => fn('hello') === 2 },
+      { id: 2, name: 'Mixed case: "Apple"', input: '"Apple"', expected: '2', run: (fn) => fn('Apple') === 2 },
+      { id: 3, name: 'All uppercase: "PROGRAMMING"', input: '"PROGRAMMING"', expected: '3', run: (fn) => fn('PROGRAMMING') === 3 },
+      { id: 4, name: 'No vowels: "rhythm"', input: '"rhythm"', expected: '0', run: (fn) => fn('rhythm') === 0 }
     ],
-    defenseQuestions: [
-      { q: "Explain why achieving true O(1) time complexity for BOTH get() and put() requires combining two distinct data structures instead of using a single list or hash table.", key: "hash|map|pointer|list|constant" },
-      { q: "When unlinking an arbitrary node in your doubly-linked list during an eviction, how do you prevent null pointer exceptions if the node is at the head or tail boundary?", key: "sentinel|dummy|boundary|head|tail" },
-      { q: "If memory was extremely constrained and each node pointer overhead was unacceptable, what alternative caching policy or structure would you propose?", key: "tradeoff|memory|clock|array|overhead" }
-    ]
+    educatorFeedback: {
+      strength: "Reinforces character inspection and logical OR conditions.",
+      limitation: "AI writes clean string functions easily without human effort.",
+      enhancement: "Ask students to analyze why `if (char === 'a' || 'e')` is a logic trap, shifting cognitive load to Analyse."
+    },
+    reflectionPrompt: "Explain what happens in JavaScript/Python if someone writes `if (char === 'a' || 'e')`."
   },
-  rate_limiter: {
-    id: 'rate_limiter',
-    title: 'Challenge 3: State Machine — Token Bucket Rate Limiter',
-    difficulty: 'Hard',
-    category: 'State Machine & Concurrency',
-    categoryIcon: 'scale',
-    categoryColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-    description: "Implement a resilient Token Bucket Rate Limiter for high-throughput API gateways.\n\nKey Requirements:\n- Starts full with capacity tokens.\n- Refills continuously at refillRatePerSecond.\n- allowRequest(tokensRequired, timestampMs) returns boolean.\n- Must be resilient against negative clock drift (NTP synchronization shifts).",
-    starterCode: `class TokenBucket {
-  constructor(capacity, refillRatePerSecond) {
-    this.capacity = capacity;
-    this.refillRate = refillRatePerSecond;
-    this.tokens = capacity;
-    this.lastRefill = Date.now();
+
+  even_sum: {
+    id: 'even_sum',
+    title: 'Lab 3: Sum of Even Numbers (Off-by-One Guard)',
+    targetTopic: 'Array Indexing, Modulo Operator, and Bounds',
+    bloomLevel: 'analyse',
+    difficulty: 'Semester 1 — Basic',
+    aiSolvability: 58,
+    aiSolvabilityCategory: 'Medium (50–64%)',
+    description: `Implement \`sumEvenNumbers(arr)\` to calculate the sum of all positive even integers in an array.\n\n**Common 1st-Semester Pitfalls:**\n1. **Off-by-One Loop Bug**: Writing \`i <= arr.length\` instead of \`i < arr.length\`, causing access to \`arr[arr.length]\` which is \`undefined\`.\n2. **Modulo Pitfall**: Forgetting to check if \`num > 0\` or handling non-numeric items.\n\n**Your Tasks:**\n1. Fix the boundary condition in the loop header.\n2. Correctly use the modulo operator \`% 2 === 0\` and ensure only positive even numbers are added.`,
+    starterCode: `/**
+ * Lab 3: Sum of positive even numbers.
+ * Notice the index boundary and condition bug below:
+ */
+function sumEvenNumbers(arr) {
+  if (!Array.isArray(arr)) return 0;
+
+  let total = 0;
+
+  // MISTAKE HERE: i <= arr.length causes index out-of-bounds on last step!
+  for (let i = 0; i <= arr.length; i++) {
+    const num = arr[i];
+
+    // Flaw: undefined % 2 is NaN, corrupting total to NaN!
+    if (num % 2 === 0 && num > 0) {
+      total += num;
+    }
   }
 
-  allowRequest(tokensRequired = 1, timestampMs = Date.now()) {
-    // TODO: Refill based on elapsed time, guard against negative drift, check capacity
-    return true;
-  }
+  return total;
 }`,
-    aiTrap: {
-      desc: 'Assuming Date.now() is strictly monotonic.',
-      traps: [
-        'NTP clock adjustments cause timestamp to jump backward.',
-        'Integer truncation losing fractional tokens on rapid calls.',
-        'Token hoarding exceeding max capacity after idle periods.'
-      ]
+    flawExplanation: {
+      identifiedMistake: "Loop condition `i <= arr.length` iterates one step beyond the array bounds. When `i === arr.length`, `arr[i]` is `undefined`. Evaluating `undefined % 2` yields `NaN`, causing the entire sum to become `NaN`!",
+      rootCause: "Confusing 0-based indexing with 1-based length measurement (the classic Off-by-One Error).",
+      remediationSuggestion: "Change loop header condition from `i <= arr.length` to `i < arr.length`."
     },
-    rubric: [
-      { name: 'Refill Math & Precision', weight: 35, desc: 'Continuous fractional token calculation.' },
-      { name: 'Clock Drift Handling', weight: 30, desc: 'Guards against backward time jumps.' },
-      { name: 'Capacity Clamping', weight: 15, desc: 'Tokens never exceed capacity limit.' },
-      { name: 'State Consistency Defense', weight: 20, desc: 'Atomic operations in distributed systems.' }
-    ],
     testCases: [
-      { id: 1, name: 'Immediate Burst Consumption', run: (TB) => {
-        const tb = new TB(5, 1); return tb.allowRequest(5) === true && tb.allowRequest(1) === false;
-      }},
-      { id: 2, name: 'Gradual Refill over time', run: (TB) => {
-        const tb = new TB(10, 2); tb.allowRequest(10, 1000); return tb.allowRequest(4, 3000) === true;
-      }},
-      { id: 3, name: 'Negative Clock Drift Resilience', run: (TB) => {
-        const tb = new TB(5, 1); tb.allowRequest(1, 10000); const res = tb.allowRequest(1, 5000); return typeof res === 'boolean';
-      }}
+      { id: 1, name: 'Standard even numbers [2, 4, 6]', input: '[2, 4, 6]', expected: '12', run: (fn) => fn([2, 4, 6]) === 12 },
+      { id: 2, name: 'Mixed with odd [1, 2, 3, 4, 5]', input: '[1, 2, 3, 4, 5]', expected: '6', run: (fn) => fn([1, 2, 3, 4, 5]) === 6 },
+      { id: 3, name: 'Negative evens [-2, 4, -6, 8]', input: '[-2, 4, -6, 8] (only positive evens)', expected: '12', run: (fn) => fn([-2, 4, -6, 8]) === 12 },
+      { id: 4, name: 'Empty array []', input: '[]', expected: '0', run: (fn) => fn([]) === 0 }
     ],
-    defenseQuestions: [
-      { q: "What failure mode occurs if external system clocks experience negative drift or leap seconds during execution?", key: "drift|ntp|negative|backward|guard" },
-      { q: "How do you ensure fractional token math does not cause premature token starvation under high frequency bursts?", key: "float|fraction|continuous|precision|integer" },
-      { q: "How would you adapt this single-threaded model to support a distributed environment across multiple worker nodes?", key: "redis|atomic|distributed|lock|concurrency" }
-    ]
+    educatorFeedback: {
+      strength: "Targets critical boundary condition mental models and modulo arithmetic.",
+      limitation: "Standard loop problems are easily generated by LLMs.",
+      enhancement: "Provide the student with the broken code and ask them to trace what `arr[arr.length]` produces in memory."
+    },
+    reflectionPrompt: "What does `undefined + 4` produce in JavaScript, and why does an off-by-one loop produce `NaN`?"
+  },
+
+  reverse_list: {
+    id: 'reverse_list',
+    title: 'Lab 4: Reverse an Array Without Built-in Methods',
+    targetTopic: 'Two-Pointer Technique and Array Mutation',
+    bloomLevel: 'evaluate',
+    difficulty: 'Semester 1 — Intermediate',
+    aiSolvability: 46, // Low solvability due to in-place constraint and comparison requirement
+    aiSolvabilityCategory: 'Low (<50%)',
+    description: `Implement \`reverseArray(arr)\` to reverse the elements of an array **without using the built-in \`.reverse()\` method**.\n\n**Two Ways to Think About This (Evaluate):**\n- **Approach A (Extra Array)**: Push elements from back to front into a new array ($O(N)$ extra space).\n- **Approach B (Two Pointers In-Place)**: Swap elements at index \`left\` and \`right\` moving towards the center ($O(1)$ extra space).\n\n**Your Tasks:**\n1. Implement either in-place swap or reversed loop.\n2. Explain in the reflection why an in-place swap uses less memory.`,
+    starterCode: `/**
+ * Lab 4: Reverse array without using arr.reverse().
+ */
+function reverseArray(arr) {
+  if (!Array.isArray(arr)) return [];
+
+  // MISTAKE TO AVOID: Do not use arr.reverse()!
+  // Write an explicit loop or two-pointer swap:
+  const result = [];
+  
+  // TODO: Loop from the last index down to 0 and push elements
+  for (let i = 0; i < arr.length; i++) {
+    result.push(arr[i]); // Currently only copies, does not reverse!
+  }
+
+  return result;
+}`,
+    flawExplanation: {
+      identifiedMistake: "Loop iterates from 0 to length - 1, producing an exact copy of the array instead of a reversed array.",
+      rootCause: "Confusion between forward traversal (`let i = 0; i < len; i++`) and backward traversal (`let i = len - 1; i >= 0; i--`).",
+      remediationSuggestion: "Initialize loop at `let i = arr.length - 1`, decrement `i--`, and continue while `i >= 0`."
+    },
+    testCases: [
+      { id: 1, name: 'Reversing [1, 2, 3, 4]', input: '[1, 2, 3, 4]', expected: '[4, 3, 2, 1]', run: (fn) => JSON.stringify(fn([1, 2, 3, 4])) === JSON.stringify([4, 3, 2, 1]) },
+      { id: 2, name: 'Odd-length array ["a", "b", "c"]', input: '["a", "b", "c"]', expected: '["c", "b", "a"]', run: (fn) => JSON.stringify(fn(["a", "b", "c"])) === JSON.stringify(["c", "b", "a"]) },
+      { id: 3, name: 'Single item [100]', input: '[100]', expected: '[100]', run: (fn) => JSON.stringify(fn([100])) === JSON.stringify([100]) },
+      { id: 4, name: 'Empty array []', input: '[]', expected: '[]', run: (fn) => JSON.stringify(fn([])) === JSON.stringify([]) }
+    ],
+    educatorFeedback: {
+      strength: "Demands conceptual understanding of pointer movement and array bounds.",
+      limitation: "Students may just invoke `.reverse()` if not restricted.",
+      enhancement: "Adding the constraint against built-in methods and asking for space-complexity comparison pushes this to Evaluate (Level 5)."
+    },
+    reflectionPrompt: "How does in-place two-pointer swapping save memory compared to creating a brand new output array?"
   }
 };
 
-let currentChallenge = CHALLENGES.sanitizer;
-let telemetry = { keystrokes: 0, pasteEvents: 0, pastedChars: 0, startTime: Date.now() };
-let currentFeedback = null;
-let defenseState = { questions: [], currentIdx: 0, answered: [] };
+// --- APPLICATION STATE ---
+let currentChallengeKey = 'find_max';
+let currentChallenge = BEGINNER_CHALLENGES.find_max;
+let currentMode = 'student'; // 'student' | 'educator'
+
+// Mistake-to-Mastery progress tracking
+const masteryTracker = {
+  find_max: 'identified', // 'identified' | 'corrected' | 'practised' | 'mastered'
+  count_vowels: 'identified',
+  even_sum: 'identified',
+  reverse_list: 'identified'
+};
+
+let currentFeedbackReport = null;
 
 // --- INITIALIZATION ---
 function init() {
   renderChallenge(currentChallenge);
-  setupEditorTelemetry();
-  resetStarterCode();
+  setupLineNumbers();
+  updateMasteryBadge();
   lucide.createIcons();
 }
 
 function switchChallenge(key) {
-  currentChallenge = CHALLENGES[key] || CHALLENGES.sanitizer;
+  currentChallengeKey = key;
+  currentChallenge = BEGINNER_CHALLENGES[key] || BEGINNER_CHALLENGES.find_max;
   renderChallenge(currentChallenge);
   resetStarterCode();
   resetFeedbackUI();
+  updateMasteryBadge();
+  lucide.createIcons();
+}
+
+function setViewMode(mode) {
+  currentMode = mode;
+  const studentBtn = document.getElementById('modeStudentBtn');
+  const educatorBtn = document.getElementById('modeEducatorBtn');
+  const studentStudio = document.getElementById('studentStudioView');
+  const educatorStudio = document.getElementById('educatorStudioView');
+
+  if (mode === 'student') {
+    studentBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow";
+    educatorBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition";
+    studentStudio.classList.remove('hidden');
+    educatorStudio.classList.add('hidden');
+  } else {
+    educatorBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow";
+    studentBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition";
+    studentStudio.classList.add('hidden');
+    educatorStudio.classList.remove('hidden');
+    renderEducatorBreakdown();
+  }
   lucide.createIcons();
 }
 
 function renderChallenge(c) {
+  // Title & Level Badges
   document.getElementById('problemTitle').innerText = c.title;
+  document.getElementById('topicBadgeText').innerText = c.targetTopic;
+  
+  const bloomMeta = BLOOM_LEVELS[c.bloomLevel] || BLOOM_LEVELS.apply;
+  const bloomBadge = document.getElementById('bloomBadge');
+  bloomBadge.className = `inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${bloomMeta.color}`;
+  bloomBadge.innerHTML = `<i data-lucide="brain" class="w-3 h-3"></i><span>Bloom: ${bloomMeta.name}</span>`;
+
   document.getElementById('difficultyBadge').innerText = c.difficulty;
-  document.getElementById('categoryBadgeText').innerText = c.category;
-  document.getElementById('categoryBadge').className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${c.categoryColor}`;
   document.getElementById('problemDescription').innerText = c.description;
 
-  // AI Trap
-  document.getElementById('aiTrapDesc').innerText = c.aiTrap.desc;
-  const trapList = document.getElementById('aiTrapList');
-  trapList.innerHTML = c.aiTrap.traps.map(t => `<li>${t}</li>`).join('');
+  // Mistake Spotlight Card
+  document.getElementById('mistakeIdentifiedPreview').innerText = c.flawExplanation.identifiedMistake;
 
-  // Rubric
-  const rubricList = document.getElementById('rubricCriteriaList');
-  rubricList.innerHTML = c.rubric.map(r => `
-    <div class="flex items-start justify-between text-xs gap-3">
-      <div>
-        <span class="font-medium text-slate-200">${r.name}</span>
-        <p class="text-[11px] text-slate-400">${r.desc}</p>
-      </div>
-      <span class="text-[11px] font-bold text-indigo-400 whitespace-nowrap">${r.weight}%</span>
-    </div>
-  `).join('');
+  resetStarterCode();
 }
 
 function resetStarterCode() {
@@ -235,11 +289,10 @@ function resetStarterCode() {
   updateLineNumbers();
 }
 
-function setupEditorTelemetry() {
+function setupLineNumbers() {
   const editor = document.getElementById('codeEditor');
   editor.addEventListener('input', updateLineNumbers);
   editor.addEventListener('keydown', (e) => {
-    telemetry.keystrokes++;
     if (e.key === 'Tab') {
       e.preventDefault();
       const start = editor.selectionStart;
@@ -247,12 +300,6 @@ function setupEditorTelemetry() {
       editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
       editor.selectionStart = editor.selectionEnd = start + 2;
     }
-  });
-  editor.addEventListener('paste', (e) => {
-    const text = (e.clipboardData || window.clipboardData).getData('text');
-    telemetry.pasteEvents++;
-    telemetry.pastedChars += text.length;
-    updateIntegrityScore();
   });
 }
 
@@ -263,381 +310,371 @@ function updateLineNumbers() {
   gutter.innerHTML = Array.from({ length: lines }, (_, i) => `<div>${i + 1}</div>`).join('');
 }
 
-function updateIntegrityScore() {
-  const editor = document.getElementById('codeEditor');
-  const totalLen = Math.max(1, editor.value.length);
-  const pasteRatio = telemetry.pastedChars / totalLen;
-  let score = 92;
-  if (pasteRatio > 0.8) score = 42;
-  else if (pasteRatio > 0.4) score = 68;
+// --- MISTAKE-TO-MASTERY TRACKER STATE ---
+function updateMasteryBadge() {
+  const stage = masteryTracker[currentChallengeKey] || 'identified';
+  const steps = ['identified', 'corrected', 'practised', 'mastered'];
+  const stageLabels = {
+    identified: '1. Mistake Identified 🔍',
+    corrected: '2. Fix Applied ✏️',
+    practised: '3. Test Verified 🎯',
+    mastered: '4. Concept Mastered 🏆'
+  };
 
-  const badge = document.getElementById('integrityScoreBadge');
-  badge.innerText = score + '%';
-  badge.className = `font-semibold ${score >= 80 ? 'text-emerald-400' : score >= 60 ? 'text-amber-400' : 'text-rose-400'}`;
+  steps.forEach((s) => {
+    const el = document.getElementById(`step-${s}`);
+    if (el) {
+      if (s === stage) {
+        el.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-600 text-white shadow ring-2 ring-indigo-400/40";
+      } else if (steps.indexOf(s) < steps.indexOf(stage)) {
+        el.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30";
+      } else {
+        el.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] text-slate-500 bg-slate-900 border border-slate-800";
+      }
+    }
+  });
 }
 
-// --- TEST EXECUTION & INTELLIGENT FEEDBACK GENERATOR ---
-function executeTests() {
+function advanceMastery(nextStage) {
+  masteryTracker[currentChallengeKey] = nextStage;
+  updateMasteryBadge();
+}
+
+// --- TEST RUNNER & FORMATIVE FEEDBACK GENERATOR ---
+function runTestsAndEvaluate() {
   const code = document.getElementById('codeEditor').value;
   const drawerBody = document.getElementById('testResultsBody');
   const title = document.getElementById('testDrawerTitle');
 
-  let targetFn = null;
+  let studentFn = null;
   try {
-    if (currentChallenge.id === 'sanitizer') {
-      const evalFn = new Function(`${code}; return (typeof safeSanitize === 'function') ? safeSanitize : sanitizeInput;`);
-      targetFn = evalFn();
-    } else if (currentChallenge.id === 'lru') {
-      const evalFn = new Function(`${code}; return LRUCache;`);
-      targetFn = evalFn();
-    } else {
-      const evalFn = new Function(`${code}; return TokenBucket;`);
-      targetFn = evalFn();
-    }
+    const fnName = currentChallengeKey === 'find_max' ? 'findMax' :
+                   currentChallengeKey === 'count_vowels' ? 'countVowels' :
+                   currentChallengeKey === 'even_sum' ? 'sumEvenNumbers' : 'reverseArray';
+    const sandbox = new Function(`${code}; return ${fnName};`);
+    studentFn = sandbox();
   } catch (err) {
-    drawerBody.innerHTML = `<div class="p-2.5 rounded-lg bg-rose-950/20 border border-rose-500/30 text-rose-300">Syntax / Compilation Error: ${err.message}</div>`;
-    title.innerText = 'Test Suite (Failed to compile)';
+    drawerBody.innerHTML = `
+      <div class="p-3 rounded-lg bg-rose-950/30 border border-rose-500/40 text-rose-300 text-xs">
+        <strong class="font-bold flex items-center gap-1.5 mb-1">
+          <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-400"></i>
+          Syntax / Execution Error
+        </strong>
+        <span>${err.message}</span>
+      </div>`;
+    title.innerText = 'Test Suite (Compilation Error)';
+    lucide.createIcons();
     return;
   }
 
   let passedCount = 0;
-  const testCards = currentChallenge.testCases.map((tc) => {
+  const cards = currentChallenge.testCases.map((tc) => {
     let passed = false;
+    let actualOutput = 'Error';
     try {
-      passed = tc.run(targetFn);
+      passed = tc.run(studentFn);
+      actualOutput = passed ? tc.expected : 'Incorrect Return';
     } catch (e) {
+      actualOutput = e.message;
       passed = false;
     }
     if (passed) passedCount++;
 
     return `
-      <div class="p-2 rounded-lg border text-xs font-mono-code ${passed ? 'bg-emerald-950/20 border-emerald-500/30 text-slate-200' : 'bg-rose-950/20 border-rose-500/30 text-slate-200'}">
-        <div class="flex items-center justify-between font-sans">
+      <div class="p-2.5 rounded-lg border text-xs font-mono ${passed ? 'bg-emerald-950/20 border-emerald-500/30 text-slate-200' : 'bg-rose-950/20 border-rose-500/30 text-slate-200'}">
+        <div class="flex items-center justify-between font-sans mb-1">
           <span class="font-semibold flex items-center gap-1.5 ${passed ? 'text-emerald-400' : 'text-rose-400'}">
             <i data-lucide="${passed ? 'check-circle-2' : 'x-circle'}" class="w-3.5 h-3.5"></i>
             ${tc.name}
           </span>
-          <span class="text-[10px] uppercase font-bold ${passed ? 'text-emerald-400' : 'text-rose-400'}">${passed ? 'PASS' : 'FAIL'}</span>
+          <span class="text-[10px] font-bold px-1.5 py-0.2 rounded uppercase ${passed ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+            ${passed ? 'PASS' : 'FAIL'}
+          </span>
+        </div>
+        <div class="text-[11px] text-slate-400 space-y-0.5">
+          <div><span class="text-slate-500 font-sans">Input: </span><span>${tc.input}</span></div>
+          <div><span class="text-slate-500 font-sans">Expected: </span><span class="text-emerald-400">${tc.expected}</span></div>
         </div>
       </div>
     `;
   });
 
-  drawerBody.innerHTML = testCards.join('');
-  title.innerText = `Test Suite Execution (${passedCount}/${currentChallenge.testCases.length} Passed)`;
+  drawerBody.innerHTML = cards.join('');
+  const total = currentChallenge.testCases.length;
+  title.innerText = `Test Suite Execution (${passedCount}/${total} Passed)`;
   lucide.createIcons();
 
-  // Trigger Intelligent Feedback Analysis
-  generateIntelligentFeedback(code, passedCount, currentChallenge.testCases.length);
+  // Generate Actionable 4-Part Formative Feedback
+  generateFormativeFeedback(code, passedCount, total);
+
+  // Advance Progress Tracker
+  if (passedCount === total) {
+    advanceMastery('practised');
+  } else if (passedCount > 0) {
+    advanceMastery('corrected');
+  }
 }
 
-function toggleTestDrawer() {
-  const body = document.getElementById('testResultsBody');
-  const chevron = document.getElementById('drawerChevron');
-  body.classList.toggle('hidden');
-  chevron.classList.toggle('rotate-180');
-}
+// --- 4-PART FORMATIVE FEEDBACK ENGINE ---
+// Answers the paper's 4 core educational questions:
+// 1. What did I do well?
+// 2. What is the problem?
+// 3. Why did it happen?
+// 4. How can I improve?
+function generateFormativeFeedback(code, passed, total) {
+  let wellDone = "";
+  let problem = "";
+  let why = "";
+  let improvement = "";
+  let nextStep = "";
 
-function generateIntelligentFeedback(code, passed, total) {
-  const misconceptions = [];
-  const strengths = [];
-  const hints = [];
-  let timeComplexity = "O(N) linear scan";
+  if (currentChallengeKey === 'find_max') {
+    const hasMaxZero = /let\s+max\s*=\s*0|var\s+max\s*=\s*0/.test(code);
+    const usesFirstElem = /numbers\[0\]/.test(code);
 
-  if (currentChallenge.id === 'sanitizer') {
-    const hasSinglePass = /replace\s*\(\s*\/<script/i.test(code);
-    const hasLoop = /while|for\s*\(|do\s*\{/i.test(code);
-    const hasCatastrophicRegex = /\(\?:.*?\)\*|<[^<]*\*/.test(code);
-
-    if (hasCatastrophicRegex) {
-      timeComplexity = "O(2^N) worst-case exponential (ReDoS)";
-      misconceptions.push({
-        title: "Catastrophic Regular Expression Backtracking (ReDoS)",
-        severity: "High",
-        mentalModel: "Assuming nested quantifiers match efficiently without CPU exhaustion.",
-        scientific: "Overlapping quantifiers create exponential permutations ($O(2^N)$), freezing the event loop.",
-        remediation: "Use non-backtracking character classes like [^>]*> or an explicit character lexer."
-      });
-    }
-    if (hasSinglePass && !hasLoop) {
-      misconceptions.push({
-        title: "Single-Pass Token Elimination Fallacy",
-        severity: "High",
-        mentalModel: "Believing a single global regex replace cleanly purges all prohibited substrings.",
-        scientific: "In <scr<script>ipt>, inner deletion reconstructs outer tokens into a new valid tag.",
-        remediation: "Implement an iterative loop (repeat until length stabilizes) or state machine."
-      });
-    }
-    if (code.includes('on')) {
-      strengths.push("Explicitly cleans inline JavaScript event handlers (e.g. onerror).");
-    }
-    hints.push({ level: 1, title: "Consider Substring Concatenation", prompt: "What happens when an attacker intentionally wraps one forbidden tag inside another split word?", revealed: true });
-    hints.push({ level: 2, title: "State Invariant & Loop Termination", prompt: "Can you compare string length before and after a cleaning pass to detect when all tokens are gone?", revealed: false });
-    hints.push({ level: 3, title: "Iterative Fixed-Point Loop", prompt: "Run a 'do { let prev = s; s = clean(s); } while (s.length !== prev.length);'", revealed: false });
-  } else if (currentChallenge.id === 'lru') {
-    const usesArray = /indexOf|splice/.test(code);
-    if (usesArray) {
-      timeComplexity = "O(N) search / eviction";
-      misconceptions.push({
-        title: "Array Shifting Disqualification for O(1) Invariant",
-        severity: "High",
-        mentalModel: "Treating an array as an acceptable queue for LRU tracking.",
-        scientific: "Array operations (splice/indexOf) require linear memory scans.",
-        remediation: "Pair a HashMap for O(1) lookups with a Doubly Linked List for O(1) pointer updates."
-      });
+    if (passed === total) {
+      wellDone = "Outstanding! You correctly initialized `max = numbers[0]` to safely handle negative values and maintained the array traversal.";
+      problem = "None detected. All positive and negative boundary test cases pass cleanly.";
+      why = "By setting `max` to an existing element of the array, your comparison invariant holds true across the entire integer range (-∞ to +∞).";
+      improvement = "Ready for the Socratic reflection: explain why this approach handles single-element arrays without bugs.";
+      nextStep = "Click 'Mastery Reflection' to record your reasoning and complete the Mastery stage.";
+    } else if (hasMaxZero) {
+      wellDone = "Your loop correctly iterates through the list and compares numbers with `if (numbers[i] > max)`.";
+      problem = "The program fails when all numbers in the array are negative (e.g. [-8, -3, -10] returns 0 instead of -3).";
+      why = "You initialized `let max = 0`. Because 0 is larger than all negative numbers, `max` is never updated during the loop.";
+      improvement = "Initialize `max` using the first element: `let max = numbers[0]`.";
+      nextStep = "Change line 11 to `let max = numbers[0];`, re-run tests, and observe the negative test case turn green.";
     } else {
-      timeComplexity = "O(1) constant time";
-      strengths.push("Satisfies strict average O(1) asymptotic lookup and eviction invariants.");
+      wellDone = "Good effort setting up the function structure and loop.";
+      problem = `Passed ${passed} of ${total} test cases. Check boundary conditions.`;
+      why = "Ensure the comparison logic `numbers[i] > max` updates `max` on every higher value.";
+      improvement = "Verify your loop starting index and initial `max` assignment.";
+      nextStep = "Test with `[-8, -3, -10]` and verify the output is `-3`.";
     }
-    hints.push({ level: 1, title: "Examine Inner Operations", prompt: "Do any operations scan through elements sequentially?", revealed: true });
-    hints.push({ level: 2, title: "Pointer Mechanics", prompt: "How do you disconnect node B between A and C without traversing from the head?", revealed: false });
-    hints.push({ level: 3, title: "Sentinel Dummy Nodes", prompt: "Use dummy head/tail nodes so pointer reassignments never need null checks.", revealed: false });
+  } else if (currentChallengeKey === 'count_vowels') {
+    const hasLowerCase = /toLowerCase\(\)/.test(code);
+
+    if (passed === total) {
+      wellDone = "Excellent! You converted text to lowercase and accurately counted vowels across all casing permutations.";
+      problem = "None. Handled mixed case, uppercase words, and vowel-less strings.";
+      why = "Normalizing case before comparing eliminates dual checking for 'a' and 'A'.";
+      improvement = "Consider checking character membership using `Set(['a','e','i','o','u'])` or a lookup string `'aeiou'.includes(ch)`.";
+      nextStep = "Proceed to the reflective check to solidify your understanding of compound condition evaluation.";
+    } else if (!hasLowerCase) {
+      wellDone = "Your loop correctly checks individual characters and increments the counter.";
+      problem = "The function misses uppercase vowels like 'A' in 'Apple' or 'PROGRAMMING'.";
+      why = "JavaScript character comparison is strict (`'A' !== 'a'`). Without case normalization, uppercase letters are skipped.";
+      improvement = "Add `text = text.toLowerCase()` at the beginning of the function or check `ch.toLowerCase()`.";
+      nextStep = "Add `const lowerText = text.toLowerCase();` and run tests again.";
+    } else {
+      wellDone = "Loop structure is sound.";
+      problem = `Passed ${passed} of ${total} tests.`;
+      why = "Look out for compound condition bugs like `if (ch === 'a' || 'e')`.";
+      improvement = "Ensure each equality comparison is explicit: `ch === 'a' || ch === 'e'`.";
+      nextStep = "Re-run tests after verifying individual character checks.";
+    }
+  } else if (currentChallengeKey === 'even_sum') {
+    const hasOffByOne = /i\s*<=\s*arr\.length/.test(code);
+
+    if (passed === total) {
+      wellDone = "Great work! You fixed the loop boundary condition and correctly accumulated positive even numbers.";
+      problem = "No errors. Handled negative evens and empty arrays safely.";
+      why = "Using `i < arr.length` ensures indexes never exceed the valid range `[0 ... length-1]`.";
+      improvement = "Try refactoring using functional programming: `arr.filter(n => n > 0 && n % 2 === 0).reduce((s, n) => s + n, 0)`.";
+      nextStep = "Complete the reflection on why accessing `arr[arr.length]` returns `undefined`.";
+    } else if (hasOffByOne) {
+      wellDone = "Your modulo check `num % 2 === 0 && num > 0` correctly identifies positive even integers.";
+      problem = "The loop causes `NaN` output because `i <= arr.length` reaches an out-of-bounds index.";
+      why = "In a 3-element array, valid indexes are 0, 1, 2. When `i = 3`, `arr[3]` is `undefined`. Evaluating `undefined % 2` produces `NaN`.";
+      improvement = "Change the loop condition from `i <= arr.length` to `i < arr.length`.";
+      nextStep = "Fix line 11 to `i < arr.length` and click Run Tests.";
+    } else {
+      wellDone = "Loop setup is in place.";
+      problem = `Passed ${passed} of ${total} tests.`;
+      why = "Ensure you check both `num > 0` and `num % 2 === 0`.";
+      improvement = "Guard against negative numbers like -2 or -4.";
+      nextStep = "Test with `[-2, 4, -6, 8]` to confirm only 4 and 8 are summed.";
+    }
   } else {
-    timeComplexity = "O(1) continuous math";
-    const hasNegativeGuard = /Math\.max\(\s*0/i.test(code);
-    if (!hasNegativeGuard) {
-      misconceptions.push({
-        title: "System Time Monotonicity Assumption",
-        severity: "Medium",
-        mentalModel: "Assuming Date.now() is strictly increasing.",
-        scientific: "NTP synchronization adjustments can cause system clocks to jump backward.",
-        remediation: "Guard the delta: const elapsed = Math.max(0, now - this.lastRefill)."
-      });
+    // Reverse array
+    if (passed === total) {
+      wellDone = "Superb! You reversed the array using genuine algorithmic loop manipulation without relying on built-in `.reverse()`.";
+      problem = "Zero flaws. Edge cases with single elements and odd lengths pass cleanly.";
+      why = "Iterating backwards from `arr.length - 1` down to 0 correctly pushes elements in reverse order.";
+      improvement = "Next challenge: Try implementing the in-place two-pointer swap to achieve O(1) extra space!";
+      nextStep = "Proceed to the reflection to evaluate space complexity differences.";
+    } else {
+      wellDone = "Array initialization and return structure are ready.";
+      problem = "The returned array is not reversed (or currently produces a forward copy).";
+      why = "Forward loop `let i = 0; i < arr.length; i++` copies elements in original order.";
+      improvement = "Start the loop at the end: `for (let i = arr.length - 1; i >= 0; i--) { result.push(arr[i]); }`.";
+      nextStep = "Update loop index to start at `arr.length - 1` and decrement with `i--`.";
     }
-    hints.push({ level: 1, title: "Clock Drift", prompt: "What happens if an NTP sync rewinds time by 50ms?", revealed: true });
-    hints.push({ level: 2, title: "Fractional Tokens", prompt: "Track tokens as floating points so rapid requests don't suffer integer truncation.", revealed: false });
-    hints.push({ level: 3, title: "Defensive State Clamp", prompt: "Clamp accumulated tokens using Math.min(this.capacity, tokens + delta * rate).", revealed: false });
   }
 
-  if (passed > 0) strengths.push(`Passed ${passed} out of ${total} test invariants.`);
-
-  const overallScore = Math.round((passed / total) * 80) + (misconceptions.length === 0 ? 20 : 5);
-
-  currentFeedback = {
-    score: overallScore,
-    summary: overallScore >= 80 ? "Strong implementation upholding invariant requirements." : `Identified ${misconceptions.length} critical conceptual misconceptions. Review scaffolded hints below.`,
-    complexity: timeComplexity,
-    strengths,
-    misconceptions,
-    hints
+  currentFeedbackReport = {
+    passed,
+    total,
+    score: Math.round((passed / total) * 100),
+    wellDone,
+    problem,
+    why,
+    improvement,
+    nextStep
   };
 
-  document.getElementById('overallScoreNum').innerText = overallScore;
-  document.getElementById('executiveSummaryText').innerText = currentFeedback.summary;
-  document.getElementById('timeComplexityBadge').innerText = timeComplexity;
-
-  const badge = document.getElementById('miscCountBadge');
-  if (misconceptions.length > 0) {
-    badge.innerText = misconceptions.length;
-    badge.classList.remove('hidden');
-    badge.classList.add('flex');
-  } else {
-    badge.classList.add('hidden');
-  }
-
-  setFeedbackTab('overview');
+  renderFormativeFeedbackUI();
 }
 
-function setFeedbackTab(tab) {
-  const tabs = ['overview', 'misconceptions', 'hints', 'rubric'];
-  tabs.forEach(t => {
-    const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
-    if (btn) {
-      if (t === tab) {
-        btn.className = "flex-1 py-2 px-2 text-center font-medium border-b-2 border-indigo-500 text-indigo-400 bg-slate-900/50 flex items-center justify-center gap-1";
-      } else {
-        btn.className = "flex-1 py-2 px-2 text-center font-medium border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-1";
-      }
-    }
-  });
+function renderFormativeFeedbackUI() {
+  const container = document.getElementById('formativeFeedbackContent');
+  if (!currentFeedbackReport) return;
 
-  const area = document.getElementById('tabContentArea');
-  if (!currentFeedback) return;
+  const f = currentFeedbackReport;
+  const isPerfect = f.passed === f.total;
 
-  if (tab === 'overview') {
-    area.innerHTML = `
-      <div class="space-y-3">
-        <div class="bg-emerald-950/20 border border-emerald-500/20 rounded-xl p-3 space-y-2">
-          <div class="flex items-center gap-1.5 text-emerald-400 font-semibold">
-            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-            <span>Demonstrated Strengths</span>
+  container.innerHTML = `
+    <div class="space-y-3 animate-in fade-in duration-150">
+      <!-- Status Banner -->
+      <div class="flex items-center justify-between p-3 rounded-xl border ${isPerfect ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300' : 'bg-amber-950/20 border-amber-500/30 text-amber-300'}">
+        <div class="flex items-center gap-2">
+          <i data-lucide="${isPerfect ? 'check-circle-2' : 'alert-circle'}" class="w-5 h-5 ${isPerfect ? 'text-emerald-400' : 'text-amber-400'}"></i>
+          <div>
+            <h4 class="font-bold text-xs">${isPerfect ? 'All Tests Passed! Ready for Reflection' : 'Mistake Diagnosed — Action Required'}</h4>
+            <p class="text-[11px] text-slate-400">${f.passed} of ${f.total} test cases passing</p>
           </div>
-          <ul class="space-y-1 text-slate-300 text-[11px]">
-            ${currentFeedback.strengths.map(s => `<li class="flex items-start gap-1.5"><span class="text-emerald-400">•</span><span>${s}</span></li>`).join('')}
-          </ul>
         </div>
-        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1.5">
-          <span class="text-indigo-400 font-semibold block text-xs flex items-center gap-1.5">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-            AI Resilience & Telemetry Audit
-          </span>
-          <p class="text-[11px] text-slate-300">
-            ${telemetry.pasteEvents > 0 ? `Observed ${telemetry.pasteEvents} clipboard paste events (${telemetry.pastedChars} chars). Initiating targeted Socratic verification defense.` : 'Organic typing cadence verified. High authenticity confidence.'}
-          </p>
-        </div>
+        <span class="font-mono text-sm font-bold ${isPerfect ? 'text-emerald-400' : 'text-amber-400'}">${f.score}%</span>
       </div>
-    `;
-  } else if (tab === 'misconceptions') {
-    if (currentFeedback.misconceptions.length === 0) {
-      area.innerHTML = `<div class="text-center py-8 text-slate-400"><i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-400 mx-auto mb-2"></i><p class="font-medium text-slate-200">No Critical Misconceptions Detected</p><p class="text-[11px] text-slate-500 mt-1">Your implementation maintained expected invariants.</p></div>`;
-    } else {
-      area.innerHTML = currentFeedback.misconceptions.map(m => `
-        <div class="bg-slate-900/90 border border-rose-500/30 rounded-xl p-3 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-semibold text-rose-300 flex items-center gap-1.5">
-              <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-400"></i>
-              ${m.title}
-            </span>
-            <span class="text-[10px] uppercase px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 font-bold border border-rose-500/20">${m.severity} Severity</span>
-          </div>
-          <div class="bg-slate-950/80 rounded-lg p-2 border border-slate-800 text-[11px] space-y-1">
-            <div><span class="text-slate-400">Student Mental Model: </span><span class="text-slate-200">${m.mentalModel}</span></div>
-            <div><span class="text-amber-400">Scientific Reality: </span><span class="text-slate-300">${m.scientific}</span></div>
-          </div>
-          <p class="text-[11px] text-indigo-300"><strong class="text-indigo-200">Remediation:</strong> ${m.remediation}</p>
-        </div>
-      `).join('');
-    }
-  } else if (tab === 'hints') {
-    area.innerHTML = `
-      <div class="p-2 rounded bg-indigo-950/20 border border-indigo-500/20 text-indigo-300 text-[11px]">
-        <strong>Progressive Scaffolding:</strong> Hints reveal one tier at a time to preserve productive problem-solving.
-      </div>
-      <div class="space-y-2 mt-2">
-        ${currentFeedback.hints.map((h, i) => `
-          <div class="border rounded-xl p-3 transition ${h.revealed ? 'bg-slate-900/80 border-slate-700' : 'bg-slate-950/40 border-slate-800 opacity-60'}">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Tier ${h.level}</span>
-              <span class="font-semibold text-slate-200">${h.title}</span>
-              ${h.revealed ? '<span class="text-emerald-400 text-[10px] font-semibold">Unlocked</span>' : `<button onclick="unlockHint(${i})" class="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-semibold">Unlock</button>`}
-            </div>
-            ${h.revealed ? `<p class="text-slate-300 text-[11px] mt-1.5">${h.prompt}</p>` : '<p class="text-slate-500 text-[11px] italic mt-1">Hint locked.</p>'}
-          </div>
-        `).join('')}
-      </div>
-    `;
-  } else if (tab === 'rubric') {
-    area.innerHTML = currentChallenge.rubric.map(r => `
-      <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="font-semibold text-slate-200">${r.name}</span>
-          <span class="font-bold text-indigo-400">${r.weight} pts</span>
-        </div>
-        <p class="text-[11px] text-slate-400">${r.desc}</p>
-      </div>
-    `).join('');
-  }
 
+      <!-- 1. What did I do well? -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
+        <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider flex items-center gap-1.5">
+          <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i> 1. What did I do well?
+        </span>
+        <p class="text-xs text-slate-200 leading-relaxed">${f.wellDone}</p>
+      </div>
+
+      <!-- 2. What is the problem? -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
+        <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center gap-1.5">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> 2. What is the problem?
+        </span>
+        <p class="text-xs text-slate-200 leading-relaxed">${f.problem}</p>
+      </div>
+
+      <!-- 3. Why did it happen? -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
+        <span class="text-[10px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i> 3. Why did it happen? (Root Misconception)
+        </span>
+        <p class="text-xs text-slate-200 leading-relaxed">${f.why}</p>
+      </div>
+
+      <!-- 4. How can I improve? & Next Step -->
+      <div class="bg-indigo-950/30 border border-indigo-500/30 rounded-xl p-3 space-y-1.5">
+        <span class="text-[10px] uppercase font-bold text-indigo-300 tracking-wider flex items-center gap-1.5">
+          <i data-lucide="compass" class="w-3.5 h-3.5"></i> 4. How can I improve?
+        </span>
+        <p class="text-xs text-indigo-100 font-medium leading-relaxed">${f.improvement}</p>
+        <div class="mt-2 pt-2 border-t border-indigo-500/20 text-[11px] text-slate-300">
+          <strong class="text-indigo-300">Next Action:</strong> ${f.nextStep}
+        </div>
+      </div>
+    </div>
+  `;
   lucide.createIcons();
-}
-
-function unlockHint(idx) {
-  if (currentFeedback && currentFeedback.hints[idx]) {
-    currentFeedback.hints[idx].revealed = true;
-    setFeedbackTab('hints');
-  }
 }
 
 function resetFeedbackUI() {
-  currentFeedback = null;
-  document.getElementById('overallScoreNum').innerText = '--';
-  document.getElementById('executiveSummaryText').innerText = 'Run tests to initiate pedagogical evaluation.';
-  document.getElementById('timeComplexityBadge').innerText = 'Pending';
-  document.getElementById('miscCountBadge').classList.add('hidden');
-  document.getElementById('tabContentArea').innerHTML = `
+  currentFeedbackReport = null;
+  document.getElementById('formativeFeedbackContent').innerHTML = `
     <div class="h-full flex flex-col items-center justify-center p-6 text-center text-slate-500 space-y-2">
-      <i data-lucide="lightbulb" class="w-10 h-10 text-slate-700"></i>
-      <p class="text-slate-300 font-medium text-xs">No Assessment Feedback Generated Yet</p>
-      <p class="text-[11px] text-slate-500 max-w-xs">Click <strong class="text-indigo-400">Run Tests</strong> or <strong class="text-emerald-400">Submit & Socratic Defend</strong> to start the multi-tiered feedback diagnostician.</p>
+      <i data-lucide="sparkles" class="w-10 h-10 text-slate-700"></i>
+      <p class="text-slate-300 font-medium text-xs">Run Tests to Receive 4-Part Formative Feedback</p>
+      <p class="text-[11px] text-slate-500 max-w-xs">Answers: <em>What did I do well?</em>, <em>What is the problem?</em>, <em>Why did it happen?</em>, and <em>How can I improve?</em></p>
     </div>
   `;
-  document.getElementById('testDrawerTitle').innerText = 'Test Suite Execution (Ready)';
-  document.getElementById('testResultsBody').innerHTML = '<p class="text-slate-500 text-center py-2">Click "Run Tests" to evaluate your solution against edge cases.</p>';
+  document.getElementById('testDrawerTitle').innerText = 'Test Suite (Ready to Run)';
+  document.getElementById('testResultsBody').innerHTML = '<p class="text-slate-500 text-center py-2 text-xs">Click "Run Tests & Diagnose" to evaluate your solution.</p>';
   lucide.createIcons();
 }
 
-// --- SOCRATIC VIVA VOCE DEFENSE MODAL ---
-function openDefenseModal() {
-  const modal = document.getElementById('defenseModal');
-  const body = document.getElementById('defenseModalBody');
+// --- EDUCATOR DESIGN STUDIO & BLOOM'S BREAKDOWN ---
+function renderEducatorBreakdown() {
+  // 1. Calculate Bloom's distribution across the 4 semester-1 questions
+  const total = Object.keys(BEGINNER_CHALLENGES).length;
+  const counts = { remember: 0, understand: 1, apply: 1, analyse: 1, evaluate: 1, create: 0 };
+  
+  const current = currentChallenge;
+  document.getElementById('eduQuestionTitle').innerText = current.title;
+  document.getElementById('eduTargetTopic').innerText = current.targetTopic;
+  document.getElementById('eduBloomLevel').innerText = current.bloomLevel.toUpperCase();
+  
+  // Solvability meter
+  const meter = document.getElementById('eduSolvabilityMeter');
+  const badge = document.getElementById('eduSolvabilityBadge');
+  meter.style.width = `${current.aiSolvability}%`;
+  badge.innerText = `${current.aiSolvability}% — ${current.aiSolvabilityCategory}`;
+
+  if (current.aiSolvability > 74) {
+    badge.className = "font-bold text-rose-400";
+    meter.className = "h-2.5 rounded-full bg-rose-500 transition-all duration-300";
+  } else if (current.aiSolvability >= 65) {
+    badge.className = "font-bold text-amber-400";
+    meter.className = "h-2.5 rounded-full bg-amber-500 transition-all duration-300";
+  } else if (current.aiSolvability >= 50) {
+    badge.className = "font-bold text-cyan-400";
+    meter.className = "h-2.5 rounded-full bg-cyan-500 transition-all duration-300";
+  } else {
+    badge.className = "font-bold text-emerald-400";
+    meter.className = "h-2.5 rounded-full bg-emerald-500 transition-all duration-300";
+  }
+
+  // Educator Design Feedback Cards
+  document.getElementById('eduFeedbackStrength').innerText = current.educatorFeedback.strength;
+  document.getElementById('eduFeedbackLimitation').innerText = current.educatorFeedback.limitation;
+  document.getElementById('eduFeedbackEnhancement').innerText = current.educatorFeedback.enhancement;
+
+  lucide.createIcons();
+}
+
+// --- SOCRATIC MASTERY REFLECTION MODAL ---
+function openReflectionModal() {
+  const modal = document.getElementById('reflectionModal');
   modal.classList.remove('hidden');
-
-  defenseState = {
-    questions: currentChallenge.defenseQuestions,
-    currentIdx: 0,
-    answered: []
-  };
-
-  renderDefenseQuestion();
+  document.getElementById('reflectionQuestionText').innerText = currentChallenge.reflectionPrompt;
+  document.getElementById('reflectionInput').value = '';
+  document.getElementById('reflectionFeedback').classList.add('hidden');
   lucide.createIcons();
 }
 
-function closeDefenseModal() {
-  document.getElementById('defenseModal').classList.add('hidden');
+function closeReflectionModal() {
+  document.getElementById('reflectionModal').classList.add('hidden');
 }
 
-function renderDefenseQuestion() {
-  const body = document.getElementById('defenseModalBody');
-  const q = defenseState.questions[defenseState.currentIdx];
+function submitReflectionAnswer() {
+  const ans = document.getElementById('reflectionInput').value.trim();
+  const feedbackBox = document.getElementById('reflectionFeedback');
+  const feedbackText = document.getElementById('reflectionFeedbackText');
 
-  if (!q) {
-    // Completed
-    body.innerHTML = `
-      <div class="text-center py-6 space-y-3">
-        <div class="h-12 w-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/30">
-          <i data-lucide="award" class="w-7 h-7"></i>
-        </div>
-        <h3 class="text-sm font-bold text-white">Defense Session Completed!</h3>
-        <p class="text-xs text-slate-400">Your conceptual justifications demonstrated verified mastery of the architectural tradeoffs.</p>
-        <div class="space-y-1.5 text-left bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs">
-          ${defenseState.answered.map((ans, i) => `
-            <div class="py-1 border-b border-slate-800/80 last:border-0">
-              <span class="font-semibold text-emerald-400">Q${i+1} Verified: </span>
-              <span class="text-slate-300">"${ans}"</span>
-            </div>
-          `).join('')}
-        </div>
-        <button onclick="closeDefenseModal()" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition">Return to Workspace</button>
-      </div>
-    `;
-    lucide.createIcons();
+  if (ans.length < 15) {
+    feedbackBox.className = "p-3 rounded-xl border bg-amber-950/20 border-amber-500/30 text-amber-300 text-xs";
+    feedbackText.innerText = "Please provide a more detailed conceptual explanation to demonstrate mastery.";
+    feedbackBox.classList.remove('hidden');
     return;
   }
 
-  body.innerHTML = `
-    <div class="space-y-3">
-      <div class="flex items-center justify-between text-xs text-slate-400">
-        <span class="font-semibold text-slate-300">Question ${defenseState.currentIdx + 1} of ${defenseState.questions.length}</span>
-        <span class="uppercase text-[10px] tracking-wider px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold border border-slate-700">Live Socratic Verification</span>
-      </div>
-      <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 flex items-start gap-2.5">
-        <i data-lucide="help-circle" class="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5"></i>
-        <p class="font-medium text-slate-100">${q.q}</p>
-      </div>
-      <div class="space-y-2">
-        <label class="text-[11px] text-slate-400 font-medium block">Your Architectural Justification:</label>
-        <textarea id="defenseInput" placeholder="Explain the data structure choices, boundary invariants, and tradeoffs..." class="w-full h-24 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 font-sans"></textarea>
-        <div class="flex justify-end">
-          <button onclick="submitDefenseAnswer()" class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-md">
-            <i data-lucide="send" class="w-3.5 h-3.5"></i>
-            <span>Submit Defense</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-  lucide.createIcons();
+  // Accepted
+  advanceMastery('mastered');
+  feedbackBox.className = "p-3 rounded-xl border bg-emerald-950/20 border-emerald-500/30 text-emerald-300 text-xs";
+  feedbackText.innerText = "Verified! Your reasoning demonstrates authentic understanding of the core concept. Stage updated to: Concept Mastered 🏆";
+  feedbackBox.classList.remove('hidden');
+
+  setTimeout(() => {
+    closeReflectionModal();
+  }, 2000);
 }
 
-function submitDefenseAnswer() {
-  const input = document.getElementById('defenseInput');
-  const val = input.value.trim();
-  if (!val) return;
-
-  defenseState.answered.push(val);
-  defenseState.currentIdx++;
-  renderDefenseQuestion();
-}
-
-// Run on page load
+// Start
 window.onload = init;
