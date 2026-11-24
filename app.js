@@ -314,22 +314,16 @@ function updateLineNumbers() {
 function updateMasteryBadge() {
   const stage = masteryTracker[currentChallengeKey] || 'identified';
   const steps = ['identified', 'corrected', 'practised', 'mastered'];
-  const stageLabels = {
-    identified: '1. Mistake Identified 🔍',
-    corrected: '2. Fix Applied ✏️',
-    practised: '3. Test Verified 🎯',
-    mastered: '4. Concept Mastered 🏆'
-  };
 
   steps.forEach((s) => {
     const el = document.getElementById(`step-${s}`);
     if (el) {
       if (s === stage) {
-        el.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-600 text-white shadow ring-2 ring-indigo-400/40";
+        el.className = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-indigo-600 text-white shadow-md ring-2 ring-indigo-400/50";
       } else if (steps.indexOf(s) < steps.indexOf(stage)) {
-        el.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30";
+        el.className = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30";
       } else {
-        el.className = "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] text-slate-500 bg-slate-900 border border-slate-800";
+        el.className = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs text-slate-400 bg-slate-950 border border-slate-800";
       }
     }
   });
@@ -534,51 +528,66 @@ function renderFormativeFeedbackUI() {
   const isPerfect = f.passed === f.total;
 
   container.innerHTML = `
-    <div class="space-y-3 animate-in fade-in duration-150">
+    <div class="space-y-4 animate-in fade-in duration-200">
       <!-- Status Banner -->
-      <div class="flex items-center justify-between p-3 rounded-xl border ${isPerfect ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300' : 'bg-amber-950/20 border-amber-500/30 text-amber-300'}">
-        <div class="flex items-center gap-2">
-          <i data-lucide="${isPerfect ? 'check-circle-2' : 'alert-circle'}" class="w-5 h-5 ${isPerfect ? 'text-emerald-400' : 'text-amber-400'}"></i>
+      <div class="flex items-center justify-between p-4 rounded-2xl border ${isPerfect ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-200 shadow-lg' : 'bg-amber-950/30 border-amber-500/40 text-amber-200 shadow-lg'}">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-xl ${isPerfect ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">
+            <i data-lucide="${isPerfect ? 'check-circle-2' : 'alert-circle'}" class="w-6 h-6"></i>
+          </div>
           <div>
-            <h4 class="font-bold text-xs">${isPerfect ? 'All Tests Passed! Ready for Reflection' : 'Mistake Diagnosed — Action Required'}</h4>
-            <p class="text-[11px] text-slate-400">${f.passed} of ${f.total} test cases passing</p>
+            <h4 class="font-extrabold text-sm sm:text-base">${isPerfect ? 'All Tests Passed! Ready for Mastery Reflection' : 'Mistake Diagnosed — Fix Required'}</h4>
+            <p class="text-xs text-slate-300 mt-0.5">${f.passed} of ${f.total} automated test invariants passing</p>
           </div>
         </div>
-        <span class="font-mono text-sm font-bold ${isPerfect ? 'text-emerald-400' : 'text-amber-400'}">${f.score}%</span>
+        <span class="font-mono text-lg font-extrabold px-3 py-1 rounded-xl bg-slate-950/80 border ${isPerfect ? 'text-emerald-400 border-emerald-500/30' : 'text-amber-400 border-amber-500/30'}">${f.score}%</span>
       </div>
 
       <!-- 1. What did I do well? -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
-        <span class="text-[10px] uppercase font-bold text-emerald-400 tracking-wider flex items-center gap-1.5">
-          <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i> 1. What did I do well?
-        </span>
-        <p class="text-xs text-slate-200 leading-relaxed">${f.wellDone}</p>
+      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
+        <div class="flex items-center gap-2">
+          <div class="p-1 rounded-md bg-emerald-500/20 text-emerald-400">
+            <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs uppercase font-extrabold text-emerald-400 tracking-wider">1. What did I do well?</span>
+        </div>
+        <p class="text-sm text-slate-100 leading-relaxed font-normal">${f.wellDone}</p>
       </div>
 
       <!-- 2. What is the problem? -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
-        <span class="text-[10px] uppercase font-bold text-rose-400 tracking-wider flex items-center gap-1.5">
-          <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> 2. What is the problem?
-        </span>
-        <p class="text-xs text-slate-200 leading-relaxed">${f.problem}</p>
+      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
+        <div class="flex items-center gap-2">
+          <div class="p-1 rounded-md bg-rose-500/20 text-rose-400">
+            <i data-lucide="help-circle" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs uppercase font-extrabold text-rose-400 tracking-wider">2. What is the problem?</span>
+        </div>
+        <p class="text-sm text-slate-100 leading-relaxed font-normal">${f.problem}</p>
       </div>
 
       <!-- 3. Why did it happen? -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 space-y-1">
-        <span class="text-[10px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1.5">
-          <i data-lucide="zap" class="w-3.5 h-3.5"></i> 3. Why did it happen? (Root Misconception)
-        </span>
-        <p class="text-xs text-slate-200 leading-relaxed">${f.why}</p>
+      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2 shadow-md">
+        <div class="flex items-center gap-2">
+          <div class="p-1 rounded-md bg-amber-500/20 text-amber-400">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs uppercase font-extrabold text-amber-400 tracking-wider">3. Why did it happen? (Root Misconception)</span>
+        </div>
+        <p class="text-sm text-slate-100 leading-relaxed font-normal">${f.why}</p>
       </div>
 
       <!-- 4. How can I improve? & Next Step -->
-      <div class="bg-indigo-950/30 border border-indigo-500/30 rounded-xl p-3 space-y-1.5">
-        <span class="text-[10px] uppercase font-bold text-indigo-300 tracking-wider flex items-center gap-1.5">
-          <i data-lucide="compass" class="w-3.5 h-3.5"></i> 4. How can I improve?
-        </span>
-        <p class="text-xs text-indigo-100 font-medium leading-relaxed">${f.improvement}</p>
-        <div class="mt-2 pt-2 border-t border-indigo-500/20 text-[11px] text-slate-300">
-          <strong class="text-indigo-300">Next Action:</strong> ${f.nextStep}
+      <div class="bg-gradient-to-br from-indigo-950/40 to-slate-950 border border-indigo-500/30 rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-md">
+        <div class="flex items-center gap-2">
+          <div class="p-1 rounded-md bg-indigo-500/20 text-indigo-400">
+            <i data-lucide="compass" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs uppercase font-extrabold text-indigo-300 tracking-wider">4. How can I improve?</span>
+        </div>
+        <p class="text-sm text-slate-100 leading-relaxed font-normal">${f.improvement}</p>
+        <div class="mt-3 pt-3 border-t border-indigo-500/20 flex items-start gap-2 text-xs sm:text-sm text-indigo-200">
+          <strong class="font-bold text-indigo-300 flex-shrink-0">Next Action:</strong>
+          <span>${f.nextStep}</span>
         </div>
       </div>
     </div>
@@ -589,10 +598,14 @@ function renderFormativeFeedbackUI() {
 function resetFeedbackUI() {
   currentFeedbackReport = null;
   document.getElementById('formativeFeedbackContent').innerHTML = `
-    <div class="h-full flex flex-col items-center justify-center p-6 text-center text-slate-500 space-y-2">
-      <i data-lucide="sparkles" class="w-10 h-10 text-slate-700"></i>
-      <p class="text-slate-300 font-medium text-xs">Run Tests to Receive 4-Part Formative Feedback</p>
-      <p class="text-[11px] text-slate-500 max-w-xs">Answers: <em>What did I do well?</em>, <em>What is the problem?</em>, <em>Why did it happen?</em>, and <em>How can I improve?</em></p>
+    <div class="py-12 text-center text-slate-500 space-y-2.5">
+      <div class="p-3 rounded-2xl bg-slate-950 inline-block border border-slate-800">
+        <i data-lucide="sparkles" class="w-8 h-8 text-indigo-400"></i>
+      </div>
+      <p class="text-slate-200 font-semibold text-sm">Ready to Diagnose Your Solution</p>
+      <p class="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+        Click <strong class="text-indigo-400 font-semibold">Run Tests & Diagnose</strong> above to receive structured feedback on strengths, flaws, root misconceptions, and improvement steps.
+      </p>
     </div>
   `;
   document.getElementById('testDrawerTitle').innerText = 'Test Suite (Ready to Run)';
