@@ -226,7 +226,6 @@ function init() {
   renderChallenge(currentChallenge);
   setupLineNumbers();
   updateMasteryBadge();
-  initCursorAnimation();
   lucide.createIcons();
 }
 
@@ -744,107 +743,6 @@ function submitReflectionAnswer() {
   setTimeout(() => {
     closeReflectionModal();
   }, 1800);
-}
-
-// --- INTERACTIVE CURSOR ANIMATION & AMBIENT SPOTLIGHT ---
-function initCursorAnimation() {
-  const spotlight = document.getElementById('cursorSpotlight');
-  const ring = document.getElementById('cursorRing');
-  const dot = document.getElementById('cursorDot');
-  if (!spotlight || !ring || !dot) return;
-
-  // Disable on touch-only devices to save battery & avoid phantom cursors
-  if (window.matchMedia('(hover: none)').matches) {
-    spotlight.style.display = 'none';
-    ring.style.display = 'none';
-    dot.style.display = 'none';
-    return;
-  }
-
-  let mouseX = window.innerWidth / 2;
-  let mouseY = window.innerHeight / 2;
-  let ringX = mouseX;
-  let ringY = mouseY;
-  let spotX = mouseX;
-  let spotY = mouseY;
-  let isHovering = false;
-  let isMouseDown = false;
-  let isVisible = false;
-
-  window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-
-    if (!isVisible) {
-      isVisible = true;
-      spotlight.style.opacity = '1';
-      ring.style.opacity = '1';
-      dot.style.opacity = '1';
-    }
-
-    // Direct hardware-accelerated position for instantaneous inner dot
-    dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
-
-    // Interactive card surface spotlight
-    const card = e.target.closest('.spotlight-card');
-    if (card) {
-      const rect = card.getBoundingClientRect();
-      card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-      card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-    }
-  });
-
-  window.addEventListener('mouseleave', () => {
-    isVisible = false;
-    spotlight.style.opacity = '0';
-    ring.style.opacity = '0';
-    dot.style.opacity = '0';
-  });
-
-  window.addEventListener('mouseenter', () => {
-    isVisible = true;
-    spotlight.style.opacity = '1';
-    ring.style.opacity = '1';
-    dot.style.opacity = '1';
-  });
-
-  window.addEventListener('mousedown', () => {
-    isMouseDown = true;
-  });
-
-  window.addEventListener('mouseup', () => {
-    isMouseDown = false;
-  });
-
-  // Interactive hover expansion on clickable controls
-  document.addEventListener('mouseover', (e) => {
-    const interactive = e.target.closest('button, select, textarea, input, a, [role="button"], .cursor-pointer');
-    if (interactive) {
-      isHovering = true;
-      ring.classList.add('cursor-hover');
-    } else {
-      isHovering = false;
-      ring.classList.remove('cursor-hover');
-    }
-  });
-
-  // Smooth 60fps physics loop with fluid inertia
-  function renderLoop() {
-    // Lerp outer ring toward mouse with elastic spring
-    ringX += (mouseX - ringX) * 0.22;
-    ringY += (mouseY - ringY) * 0.22;
-
-    // Lerp ambient background spotlight with soft drift
-    spotX += (mouseX - spotX) * 0.08;
-    spotY += (mouseY - spotY) * 0.08;
-
-    const scale = isMouseDown ? 0.75 : (isHovering ? 1.5 : 1.0);
-    ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) scale(${scale})`;
-    spotlight.style.transform = `translate3d(${spotX}px, ${spotY}px, 0)`;
-
-    requestAnimationFrame(renderLoop);
-  }
-  requestAnimationFrame(renderLoop);
 }
 
 // Start
