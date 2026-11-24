@@ -1,4 +1,33 @@
-export type ProgrammingLanguage = 'javascript' | 'python' | 'typescript';
+/**
+ * Mistake-to-Mastery Platform Types
+ * Grounded in: "Beyond Detection: Designing AI-Resilient Assessments with Automated Feedback" (Akbar 2025)
+ */
+
+export type ProgrammingLanguage = 'c' | 'javascript' | 'python' | 'typescript';
+
+export type BloomLevel = 
+  | 'remember'   // Recall C syntax, primitives, headers
+  | 'understand' // Trace pointer/array bounds & execution
+  | 'apply'      // Implement standard algorithms in C
+  | 'analyse'    // Debug memory boundaries, off-by-one & logic flaws
+  | 'evaluate'   // Judge memory footprint & algorithmic efficiency
+  | 'create';    // Design original modular programs in C
+
+export type MasteryStage = 'identified' | 'corrected' | 'practised' | 'mastered';
+
+export type AISolvabilityCategory = 
+  | 'Low (<50%)' 
+  | 'Medium (50–64%)' 
+  | 'Medium-High (65–74%)' 
+  | 'High (>74%)';
+
+export interface AISolvabilityMetadata {
+  score: number; // 0 - 100%
+  category: AISolvabilityCategory;
+  taskStrength: string;
+  limitation: string;
+  suggestedImprovement: string;
+}
 
 export interface TestCase {
   id: string;
@@ -8,29 +37,37 @@ export interface TestCase {
   isSecret?: boolean;
 }
 
-export type AssessmentCategory = 
-  | 'algorithmic'          // Algorithmic challenge with performance/scale invariants
-  | 'inverted_ai_critique' // Flawed AI-generated code that student must audit & repair
-  | 'concurrency_state';    // State machine or edge-case prone logic
+export interface BeginnerFlawExplanation {
+  identifiedMistake: string;
+  rootCause: string;
+  remediationSuggestion: string;
+}
 
 export interface AssessmentChallenge {
   id: string;
   title: string;
-  category: AssessmentCategory;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  targetTopic: string;
+  bloomLevel: BloomLevel;
+  difficulty: string;
+  aiSolvability: AISolvabilityMetadata;
   description: string;
   starterCode: Record<ProgrammingLanguage, string>;
   testCases: TestCase[];
-  aiTrapContext?: {
-    claimedFlawlessDescription: string;
-    hiddenVulnerabilities: string[];
-    commonCopyPasteHallucinations: string[];
-  };
+  flawExplanation: BeginnerFlawExplanation;
+  reflectionPrompt: string;
   rubricCriteria: {
     name: string;
     weight: number;
     description: string;
   }[];
+}
+
+export interface FormativeFeedback {
+  wellDone: string;
+  problem: string;
+  why: string;
+  improvement: string;
+  nextStep: string;
 }
 
 export interface TelemetryMetric {
@@ -39,27 +76,8 @@ export interface TelemetryMetric {
   pastedCharCount: number;
   activeTypingTimeSeconds: number;
   backspaceCount: number;
-  pasteRatio: number; // pasted chars / total chars
+  pasteRatio: number;
   burstAnomalyDetected: boolean;
-}
-
-export interface Misconception {
-  id: string;
-  title: string;
-  severity: 'high' | 'medium' | 'low';
-  affectedLines?: number[];
-  studentMentalModel: string;
-  scientificExplanation: string;
-  remediationAdvice: string;
-}
-
-export interface ScaffoldedHint {
-  level: 1 | 2 | 3;
-  type: 'nudge' | 'guiding_question' | 'structural_remediation';
-  title: string;
-  content: string;
-  reflectionQuestion: string;
-  revealed: boolean;
 }
 
 export interface RubricScoreItem {
@@ -72,18 +90,12 @@ export interface RubricScoreItem {
 
 export interface IntelligentFeedbackReport {
   overallScore: number;
-  authenticityConfidence: number; // 0 - 100%
-  executiveSummary: string;
-  strengths: string[];
-  misconceptions: Misconception[];
-  scaffoldedHints: ScaffoldedHint[];
+  authenticityConfidence: number;
+  bloomLevel: BloomLevel;
+  aiSolvability: AISolvabilityMetadata;
+  formativeFeedback: FormativeFeedback;
   rubricBreakdown: RubricScoreItem[];
-  timeComplexityIdentified: string;
-  spaceComplexityIdentified: string;
-  aiResilienceAudit: {
-    authenticityFlags: string[];
-    defenseRecommendation: string;
-  };
+  masteryStage: MasteryStage;
 }
 
 export interface DefenseQuestion {
@@ -96,17 +108,5 @@ export interface DefenseQuestion {
     verifiedMastery: boolean;
     confidenceScore: number;
     analysis: string;
-  };
-}
-
-export interface DefenseSession {
-  submissionId: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  questions: DefenseQuestion[];
-  currentQuestionIndex: number;
-  finalVerdict?: {
-    passed: boolean;
-    authenticityRating: 'High Understanding' | 'Partial / Memorized' | 'Superficial / Likely Pasted';
-    summary: string;
   };
 }

@@ -21,8 +21,8 @@ export default function AssessmentStudio() {
   const [currentChallengeId, setCurrentChallengeId] = useState<string>(ASSESSMENT_CHALLENGES[0].id);
   const currentChallenge = ASSESSMENT_CHALLENGES.find((c) => c.id === currentChallengeId)!;
 
-  const [language, setLanguage] = useState<ProgrammingLanguage>('javascript');
-  const [code, setCode] = useState<string>(currentChallenge.starterCode.javascript);
+  const [language, setLanguage] = useState<ProgrammingLanguage>('c');
+  const [code, setCode] = useState<string>(currentChallenge.starterCode.c);
 
   // Execution & Feedback states
   const [isExecuting, setIsExecuting] = useState(false);
@@ -41,7 +41,7 @@ export default function AssessmentStudio() {
 
   // Reset code when challenge or language changes
   useEffect(() => {
-    setCode(currentChallenge.starterCode[language] || currentChallenge.starterCode.javascript);
+    setCode(currentChallenge.starterCode[language] || currentChallenge.starterCode.c);
     setTestResults([]);
     setTestSummary(null);
     setFeedbackReport(null);
@@ -58,7 +58,7 @@ export default function AssessmentStudio() {
   };
 
   const handleResetCode = () => {
-    setCode(currentChallenge.starterCode[language] || currentChallenge.starterCode.javascript);
+    setCode(currentChallenge.starterCode[language] || currentChallenge.starterCode.c);
   };
 
   // Run tests & request intelligent feedback

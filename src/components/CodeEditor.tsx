@@ -74,6 +74,7 @@ export function CodeEditor({
             onChange={(e) => onLanguageChange(e.target.value as ProgrammingLanguage)}
             className="bg-slate-800 text-slate-200 border border-slate-700 rounded px-2 py-0.5 text-xs focus:outline-none"
           >
+            <option value="c">C (C99 / C11)</option>
             <option value="javascript">JavaScript (ES6)</option>
             <option value="typescript">TypeScript</option>
             <option value="python">Python 3</option>

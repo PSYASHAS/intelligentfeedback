@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ASSESSMENT_CHALLENGES } from '@/lib/assessment-bank';
 
+function compileAndRunC(cCode: string, challengeId: string) {
+  const js = cCode
+    .replace(/#include\s*<.*?>/g, '')
+    .replace(/\bint\s+findMax\s*\([^)]*\)/g, 'function findMax(numbers, size)')
+    .replace(/\bint\s+countVowels\s*\([^)]*\)/g, 'function countVowels(text)')
+    .replace(/\bint\s+sumEvenNumbers\s*\([^)]*\)/g, 'function sumEvenNumbers(arr, size)')
+    .replace(/\bvoid\s+reverseArray\s*\([^)]*\)/g, 'function reverseArray(arr, size, result)')
+    .replace(/tolower\s*\((.*?)\)/g, '($1.toLowerCase ? $1.toLowerCase() : String.fromCharCode($1).toLowerCase())')
+    .replace(/\[i\]\s*!=\s*['"]\\0['"]/g, '.length > i')
+    .replace(/text\[i\]\s*!=\s*['"]\\0['"]/g, 'i < text.length')
+    .replace(/text\[i\]\s*!=\s*0/g, 'i < text.length')
+    .replace(/strlen\s*\((.*?)\)/g, '$1.length')
+    .replace(/\bint\s+/g, 'let ')
+    .replace(/\bchar\s+/g, 'let ')
+    .replace(/\bfloat\s+/g, 'let ')
+    .replace(/\bdouble\s+/g, 'let ');
+
+  const fnName = challengeId === 'find_max' ? 'findMax' :
+                 challengeId === 'count_vowels' ? 'countVowels' :
+                 challengeId === 'even_sum' ? 'sumEvenNumbers' : 'reverseArray';
+
+  const sandbox = new Function(`${js}; return ${fnName};`);
+  return sandbox();
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { code, challengeId } = await req.json();
@@ -8,6 +33,24 @@ export async function POST(req: NextRequest) {
     const challenge = ASSESSMENT_CHALLENGES.find((c) => c.id === challengeId);
     if (!challenge) {
       return NextResponse.json({ error: 'Challenge not found' }, { status: 404 });
+    }
+
+    let studentFn: any;
+    try {
+      studentFn = compileAndRunC(code, challenge.id);
+    } catch (compileErr: any) {
+      return NextResponse.json({
+        results: challenge.testCases.map((tc) => ({
+          id: tc.id,
+          name: tc.name,
+          passed: false,
+          input: tc.inputDescription,
+          expected: tc.expectedOutput,
+          actual: 'Compilation Error',
+          error: compileErr.message,
+        })),
+        summary: { passed: 0, failed: challenge.testCases.length, total: challenge.testCases.length },
+      });
     }
 
     const testResults: Array<{
@@ -20,191 +63,112 @@ export async function POST(req: NextRequest) {
       error?: string;
     }> = [];
 
-    if (challenge.id === 'inverted-ai-sanitizer') {
-      // Evaluate safeSanitize function
-      for (const tc of challenge.testCases) {
-        try {
-          // Wrapped evaluation in sandbox
-          const sandbox = new Function(`
-            ${code}
-            if (typeof safeSanitize !== 'function') {
-              throw new Error("safeSanitize function is not defined or not exported");
-            }
-            return safeSanitize;
-          `);
-          const fn = sandbox();
+    let passedCount = 0;
 
-          let passed = false;
-          let actual = '';
+    for (const tc of challenge.testCases) {
+      let passed = false;
+      let actual: any = '';
 
-          if (tc.id === 'tc-1') {
-            actual = fn('Hello <script>alert(1)</script> World');
-            passed = actual === 'Hello  World';
-          } else if (tc.id === 'tc-2') {
-            actual = fn('Safe <scr<script>ipt>evil()</script>text');
-            passed = actual === 'Safe text';
-          } else if (tc.id === 'tc-3') {
-            actual = fn('<img src="avatar.png"   onerror = "malicious()" />');
-            passed = !actual.toLowerCase().includes('onerror') && !actual.includes('malicious');
-          } else if (tc.id === 'tc-4') {
-            const start = Date.now();
-            actual = fn('<script ' + 'a'.repeat(500));
-            const elapsed = Date.now() - start;
-            passed = elapsed < 50;
+      try {
+        if (challenge.id === 'find_max') {
+          if (tc.id === 'tc-max-1') {
+            actual = studentFn([3, 7, 2, 9], 4);
+            passed = actual === 9;
+          } else if (tc.id === 'tc-max-2') {
+            actual = studentFn([-8, -3, -10], 3);
+            passed = actual === -3;
+          } else if (tc.id === 'tc-max-3') {
+            actual = studentFn([-42], 1);
+            passed = actual === -42;
+          } else if (tc.id === 'tc-max-4') {
+            actual = studentFn([-5, 0, 12, -2], 4);
+            passed = actual === 12;
           }
-
-          testResults.push({
-            id: tc.id,
-            name: tc.name,
-            passed,
-            input: tc.inputDescription,
-            expected: tc.expectedOutput,
-            actual: typeof actual === 'string' ? JSON.stringify(actual) : String(actual),
-          });
-        } catch (err: any) {
-          testResults.push({
-            id: tc.id,
-            name: tc.name,
-            passed: false,
-            input: tc.inputDescription,
-            expected: tc.expectedOutput,
-            actual: 'Error',
-            error: err.message,
-          });
-        }
-      }
-    } else if (challenge.id === 'algorithmic-lru-cache') {
-      for (const tc of challenge.testCases) {
-        try {
-          const sandbox = new Function(`
-            ${code}
-            if (typeof LRUCache !== 'function') {
-              throw new Error("LRUCache class is not defined");
-            }
-            return LRUCache;
-          `);
-          const LRUClass = sandbox();
-
-          let passed = false;
-          let actual = '';
-
-          if (tc.id === 'tc-lru-1') {
-            const cache = new LRUClass(2);
-            cache.put(1, 1);
-            cache.put(2, 2);
-            const val = cache.get(1);
-            actual = String(val);
-            passed = val === 1;
-          } else if (tc.id === 'tc-lru-2') {
-            const cache = new LRUClass(2);
-            cache.put(1, 1);
-            cache.put(2, 2);
-            cache.put(3, 3); // evicts key 1
-            const val = cache.get(1);
-            actual = String(val);
-            passed = val === -1;
-          } else if (tc.id === 'tc-lru-3') {
-            const cache = new LRUClass(2);
-            cache.put(1, 1);
-            cache.put(2, 2);
-            cache.get(1); // key 1 is now MRU, key 2 is LRU
-            cache.put(3, 3); // evicts key 2
-            const val2 = cache.get(2);
-            const val1 = cache.get(1);
-            actual = `get(2): ${val2}, get(1): ${val1}`;
-            passed = val2 === -1 && val1 === 1;
+        } else if (challenge.id === 'count_vowels') {
+          if (tc.id === 'tc-vow-1') {
+            actual = studentFn('hello');
+            passed = actual === 2;
+          } else if (tc.id === 'tc-vow-2') {
+            actual = studentFn('Apple');
+            passed = actual === 2;
+          } else if (tc.id === 'tc-vow-3') {
+            actual = studentFn('PROGRAMMING');
+            passed = actual === 3;
+          } else if (tc.id === 'tc-vow-4') {
+            actual = studentFn('rhythm');
+            passed = actual === 0;
           }
-
-          testResults.push({
-            id: tc.id,
-            name: tc.name,
-            passed,
-            input: tc.inputDescription,
-            expected: tc.expectedOutput,
-            actual,
-          });
-        } catch (err: any) {
-          testResults.push({
-            id: tc.id,
-            name: tc.name,
-            passed: false,
-            input: tc.inputDescription,
-            expected: tc.expectedOutput,
-            actual: 'Error',
-            error: err.message,
-          });
-        }
-      }
-    } else {
-      // Token bucket tests
-      for (const tc of challenge.testCases) {
-        try {
-          const sandbox = new Function(`
-            ${code}
-            if (typeof TokenBucket !== 'function') {
-              throw new Error("TokenBucket class is not defined");
-            }
-            return TokenBucket;
-          `);
-          const TBClass = sandbox();
-          let passed = false;
-          let actual = '';
-
-          if (tc.id === 'tc-tb-1') {
-            const tb = new TBClass(5, 1);
-            const r1 = tb.allowRequest(5);
-            const r2 = tb.allowRequest(1);
-            passed = r1 === true && r2 === false;
-            actual = `First request(5): ${r1}, Second request(1): ${r2}`;
-          } else if (tc.id === 'tc-tb-2') {
-            const tb = new TBClass(10, 2);
-            tb.allowRequest(10, 1000); // drain all 10 tokens at time 1000
-            const allowed = tb.allowRequest(4, 3000); // 2 seconds later -> +4 tokens
-            passed = allowed === true;
-            actual = `Allow 4 tokens after 2s: ${allowed}`;
-          } else if (tc.id === 'tc-tb-3') {
-            const tb = new TBClass(5, 1);
-            tb.allowRequest(1, 10000);
-            const res = tb.allowRequest(1, 5000); // clock jumped back
-            passed = typeof res === 'boolean';
-            actual = `Clock drift handled without crash: ${res}`;
+        } else if (challenge.id === 'even_sum') {
+          if (tc.id === 'tc-sum-1') {
+            actual = studentFn([2, 4, 6], 3);
+            passed = actual === 12;
+          } else if (tc.id === 'tc-sum-2') {
+            actual = studentFn([8, 10], 2);
+            passed = actual === 18;
+          } else if (tc.id === 'tc-sum-3') {
+            actual = studentFn([1, 2, 3, 4, 5], 5);
+            passed = actual === 6;
+          } else if (tc.id === 'tc-sum-4') {
+            actual = studentFn([-2, 4, -6, 8], 4);
+            passed = actual === 12;
           }
-
-          testResults.push({
-            id: tc.id,
-            name: tc.name,
-            passed,
-            input: tc.inputDescription,
-            expected: tc.expectedOutput,
-            actual,
-          });
-        } catch (err: any) {
-          testResults.push({
-            id: tc.id,
-            name: tc.name,
-            passed: false,
-            input: tc.inputDescription,
-            expected: tc.expectedOutput,
-            actual: 'Error',
-            error: err.message,
-          });
+        } else if (challenge.id === 'reverse_list') {
+          const resArr: number[] = [];
+          if (tc.id === 'tc-rev-1') {
+            studentFn([1, 2, 3, 4], 4, resArr);
+            passed = JSON.stringify(resArr) === JSON.stringify([4, 3, 2, 1]);
+            actual = `{${resArr.join(', ')}}`;
+          } else if (tc.id === 'tc-rev-2') {
+            studentFn([10, 20, 30], 3, resArr);
+            passed = JSON.stringify(resArr) === JSON.stringify([30, 20, 10]);
+            actual = `{${resArr.join(', ')}}`;
+          } else if (tc.id === 'tc-rev-3') {
+            studentFn([100], 1, resArr);
+            passed = JSON.stringify(resArr) === JSON.stringify([100]);
+            actual = `{${resArr.join(', ')}}`;
+          } else if (tc.id === 'tc-rev-4') {
+            studentFn([5, 99], 2, resArr);
+            passed = JSON.stringify(resArr) === JSON.stringify([99, 5]);
+            actual = `{${resArr.join(', ')}}`;
+          }
         }
+
+        if (passed) passedCount++;
+
+        testResults.push({
+          id: tc.id,
+          name: tc.name,
+          passed,
+          input: tc.inputDescription,
+          expected: tc.expectedOutput,
+          actual: typeof actual === 'object' ? JSON.stringify(actual) : String(actual),
+        });
+      } catch (err: any) {
+        testResults.push({
+          id: tc.id,
+          name: tc.name,
+          passed: false,
+          input: tc.inputDescription,
+          expected: tc.expectedOutput,
+          actual: 'Runtime Error',
+          error: err.message,
+        });
       }
     }
 
-    const passedCount = testResults.filter((r) => r.passed).length;
-
     return NextResponse.json({
-      success: true,
+      results: testResults,
       summary: {
         passed: passedCount,
-        failed: testResults.length - passedCount,
-        total: testResults.length,
-        failures: testResults.filter((t) => !t.passed).map((t) => ({ testId: t.id, name: t.name, error: t.error })),
+        failed: challenge.testCases.length - passedCount,
+        total: challenge.testCases.length,
       },
-      results: testResults,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Execution error' }, { status: 500 });
+    console.error('Execution handler error:', error);
+    return NextResponse.json(
+      { error: 'Failed to execute test cases', details: error?.message },
+      { status: 500 }
+    );
   }
 }

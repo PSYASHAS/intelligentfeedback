@@ -1,8 +1,8 @@
-import { DefenseQuestion, DefenseSession, AssessmentChallenge } from './types';
+import { DefenseQuestion, AssessmentChallenge } from './types';
 
 export class SocraticDefenseAgent {
   /**
-   * Generates tailored viva voce questions that probe the student's actual code.
+   * Generates tailored Socratic reflection questions that probe the student's actual code in C.
    */
   public static generateQuestions(
     challenge: AssessmentChallenge,
@@ -10,118 +10,66 @@ export class SocraticDefenseAgent {
   ): DefenseQuestion[] {
     const questions: DefenseQuestion[] = [];
 
-    if (challenge.id === 'inverted-ai-sanitizer') {
+    if (challenge.id === 'find_max') {
       questions.push({
-        id: 'q-sanitizer-1',
+        id: 'q-max-1',
         questionNumber: 1,
         targetedInsight: 'code_rationale',
-        prompt: `In your sanitization logic, how does your implementation guarantee that an input like '<scr<script>ipt>' cannot reconstruct into an executable script after the inner tag is removed?`,
+        prompt: 'In C, why is initializing int max = numbers[0]; safer than initializing int max = -999999;?'
       });
-
       questions.push({
-        id: 'q-sanitizer-2',
+        id: 'q-max-2',
         questionNumber: 2,
         targetedInsight: 'edge_case_stress',
-        prompt: `If an attacker uses multiline spacing and tab characters like '<img src="x"\\n\\tonerror\\t=\\t"alert(1)">', how does your solution parse the attributes without succumbing to exponential regex backtracking?`,
+        prompt: 'What occurs if an empty array or size <= 0 is passed to findMax in C without an early guard check?'
       });
-
       questions.push({
-        id: 'q-sanitizer-3',
+        id: 'q-max-3',
         questionNumber: 3,
         targetedInsight: 'alternative_tradeoff',
-        prompt: `Why is an iterative character scan or state machine generally considered more resilient against ReDoS attacks than complex regular expressions?`,
+        prompt: 'Could this function be implemented using pointer arithmetic (e.g. *(numbers + i)) instead of array indexing, and is there any difference in machine code?'
       });
-    } else if (challenge.id === 'algorithmic-lru-cache') {
+    } else if (challenge.id === 'count_vowels') {
       questions.push({
-        id: 'q-lru-1',
+        id: 'q-vow-1',
         questionNumber: 1,
         targetedInsight: 'code_rationale',
-        prompt: `Explain why achieving true O(1) time complexity for BOTH get() and put() requires combining two distinct data structures instead of using a single list or hash table.`,
+        prompt: "In C, what is the numeric ASCII difference between 'A' and 'a', and what does tolower('A') evaluate to internally?"
       });
-
       questions.push({
-        id: 'q-lru-2',
+        id: 'q-vow-2',
         questionNumber: 2,
         targetedInsight: 'edge_case_stress',
-        prompt: `When unlinking an arbitrary node in your doubly-linked list during an eviction or update, how do you prevent null pointer exceptions if the node is at the head or tail boundary?`,
+        prompt: "How does the null-terminator '\\0' prevent buffer overruns when looping through text[i] in a C string?"
       });
-
+    } else if (challenge.id === 'even_sum') {
       questions.push({
-        id: 'q-lru-3',
-        questionNumber: 3,
-        targetedInsight: 'alternative_tradeoff',
-        prompt: `If memory was extremely constrained and each node pointer overhead was unacceptable, what alternative caching policy or structure would you propose?`,
-      });
-    } else {
-      questions.push({
-        id: 'q-gen-1',
+        id: 'q-sum-1',
         questionNumber: 1,
         targetedInsight: 'code_rationale',
-        prompt: `Walk me through the lifecycle of an incoming request in your solution. What is the exact invariant you maintain?`,
+        prompt: 'Why do C arrays use 0-based indexing instead of 1-based indexing, referencing pointer offsets from the base address?'
       });
-
       questions.push({
-        id: 'q-gen-2',
+        id: 'q-sum-2',
         questionNumber: 2,
         targetedInsight: 'edge_case_stress',
-        prompt: `What failure mode occurs if external system clocks experience negative drift or leap seconds during execution?`,
+        prompt: 'In C, what is the difference between a compile error and undefined behavior when reading arr[size]?'
       });
-
+    } else if (challenge.id === 'reverse_list') {
       questions.push({
-        id: 'q-gen-3',
-        questionNumber: 3,
+        id: 'q-rev-1',
+        questionNumber: 1,
+        targetedInsight: 'code_rationale',
+        prompt: 'Why does the expression (size - 1 - i) correctly map the last index down to the first index?'
+      });
+      questions.push({
+        id: 'q-rev-2',
+        questionNumber: 2,
         targetedInsight: 'alternative_tradeoff',
-        prompt: `How would you adapt this single-threaded model to support a distributed environment across multiple worker nodes?`,
+        prompt: 'What is the memory complexity tradeoff between allocating a separate result buffer versus in-place two-pointer swap in C?'
       });
     }
 
     return questions;
-  }
-
-  /**
-   * Evaluates the student's defense response for genuine conceptual understanding.
-   */
-  public static evaluateAnswer(
-    question: DefenseQuestion,
-    answer: string
-  ): { verifiedMastery: boolean; confidenceScore: number; analysis: string } {
-    const trimmed = answer.trim();
-    const wordCount = trimmed.split(/\s+/).length;
-
-    // Check for superficial / evasive answers
-    if (wordCount < 6 || trimmed.toLowerCase().includes("i don't know") || trimmed.toLowerCase().includes("ai wrote this")) {
-      return {
-        verifiedMastery: false,
-        confidenceScore: 15,
-        analysis: 'Response is too brief or evasive to demonstrate conceptual mastery of the design choice.',
-      };
-    }
-
-    const lower = trimmed.toLowerCase();
-    let score = 75;
-    let analysis = 'Student demonstrated sound reasoning aligned with structural invariants.';
-
-    if (question.targetedInsight === 'code_rationale') {
-      if (lower.includes('hash') || lower.includes('pointer') || lower.includes('constant') || lower.includes('loop') || lower.includes('pass')) {
-        score = 92;
-        analysis = 'Strong articulation of data structure mechanics and algorithmic complexity guarantees.';
-      }
-    } else if (question.targetedInsight === 'edge_case_stress') {
-      if (lower.includes('null') || lower.includes('boundary') || lower.includes('backtrack') || lower.includes('sentinel') || lower.includes('drift')) {
-        score = 90;
-        analysis = 'Accurately recognized boundary invariants and defensive state validation.';
-      }
-    } else if (question.targetedInsight === 'alternative_tradeoff') {
-      if (lower.includes('tradeoff') || lower.includes('memory') || lower.includes('overhead') || lower.includes('scale') || lower.includes('state')) {
-        score = 88;
-        analysis = 'Demonstrated mature engineering reasoning regarding architectural alternatives.';
-      }
-    }
-
-    return {
-      verifiedMastery: score >= 70,
-      confidenceScore: score,
-      analysis,
-    };
   }
 }

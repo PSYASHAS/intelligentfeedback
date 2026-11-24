@@ -2,52 +2,46 @@
 
 import React from 'react';
 import { AssessmentChallenge } from '@/lib/types';
-import { AlertTriangle, CheckCircle, ShieldAlert, Cpu, Sparkles, Scale } from 'lucide-react';
+import { AlertTriangle, Brain, Gauge, Scale, Sparkles } from 'lucide-react';
 
 interface ProblemStatementProps {
   challenge: AssessmentChallenge;
 }
 
 export function ProblemStatement({ challenge }: ProblemStatementProps) {
-  const getCategoryBadge = (cat: string) => {
-    switch (cat) {
-      case 'inverted_ai_critique':
-        return {
-          label: 'Inverted AI Bug Hunt',
-          color: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-          icon: ShieldAlert,
-        };
-      case 'algorithmic':
-        return {
-          label: 'Asymptotic O(1) Invariant',
-          color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-          icon: Cpu,
-        };
+  const getBloomBadge = (level: string) => {
+    switch (level) {
+      case 'remember':
+        return { label: 'Bloom: Remember', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' };
+      case 'understand':
+        return { label: 'Bloom: Understand', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' };
+      case 'apply':
+        return { label: 'Bloom: Apply', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' };
+      case 'analyse':
+        return { label: 'Bloom: Analyse', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
+      case 'evaluate':
+        return { label: 'Bloom: Evaluate', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' };
       default:
-        return {
-          label: 'State Machine & Concurrency',
-          color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-          icon: Scale,
-        };
+        return { label: 'Bloom: Create', color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' };
     }
   };
 
-  const badge = getCategoryBadge(challenge.category);
-  const Icon = badge.icon;
+  const bloom = getBloomBadge(challenge.bloomLevel);
 
   return (
     <div className="h-full flex flex-col overflow-y-auto pr-1 text-slate-300 space-y-4">
       {/* Title & Category Header */}
       <div>
         <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${badge.color}`}
-          >
-            <Icon className="h-3.5 w-3.5" />
-            {badge.label}
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${bloom.color}`}>
+            <Brain className="h-3.5 w-3.5" />
+            {bloom.label}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-medium">
             {challenge.difficulty}
+          </span>
+          <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-500/30 font-medium">
+            Topic: {challenge.targetTopic}
           </span>
         </div>
         <h1 className="text-lg font-bold text-white tracking-tight">{challenge.title}</h1>
@@ -55,27 +49,35 @@ export function ProblemStatement({ challenge }: ProblemStatementProps) {
 
       {/* Description */}
       <div className="bg-slate-900/60 border border-slate-800/80 rounded-xl p-4 text-xs leading-relaxed space-y-3">
-        <div className="whitespace-pre-line text-slate-300 font-sans">{challenge.description}</div>
+        <div className="whitespace-pre-line text-slate-200 font-sans leading-relaxed">{challenge.description}</div>
       </div>
 
-      {/* AI Trap Context Alert (Why LLMs struggle with this challenge) */}
-      {challenge.aiTrapContext && (
-        <div className="bg-gradient-to-r from-amber-950/30 to-slate-900 border border-amber-500/30 rounded-xl p-3.5 text-xs">
-          <div className="flex items-center gap-2 font-semibold text-amber-300 mb-2">
-            <AlertTriangle className="h-4 w-4 text-amber-400" />
-            <span>Why Typical LLMs Hallucinate Here</span>
-          </div>
-          <p className="text-slate-300 mb-2">{challenge.aiTrapContext.claimedFlawlessDescription}</p>
-          <div className="space-y-1">
-            <span className="text-[11px] font-semibold text-amber-200">Hidden Trapdoors:</span>
-            <ul className="list-disc list-inside space-y-1 text-slate-400 text-[11px]">
-              {challenge.aiTrapContext.hiddenVulnerabilities.map((v, i) => (
-                <li key={i}>{v}</li>
-              ))}
-            </ul>
-          </div>
+      {/* Beginner Mistake Spotlight Card */}
+      <div className="bg-gradient-to-r from-rose-950/30 to-slate-900 border border-rose-500/30 rounded-xl p-3.5 text-xs">
+        <div className="flex items-center gap-2 font-semibold text-rose-300 mb-1.5">
+          <AlertTriangle className="h-4 w-4 text-rose-400" />
+          <span>Beginner Mistake Spotlight</span>
         </div>
-      )}
+        <p className="text-slate-300 leading-relaxed">{challenge.flawExplanation.identifiedMistake}</p>
+        <p className="text-rose-300 font-medium mt-1.5 text-[11px]">
+          <strong>Root Misconception:</strong> {challenge.flawExplanation.rootCause}
+        </p>
+      </div>
+
+      {/* AI-Solvability Indicator (Akbar 2025 Paper Table 1) */}
+      <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 text-xs space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1.5 font-semibold text-cyan-300">
+            <Gauge className="h-4 w-4 text-cyan-400" />
+            Estimated AI-Solvability:
+          </span>
+          <span className="font-bold text-cyan-400">{challenge.aiSolvability.score}% — {challenge.aiSolvability.category}</span>
+        </div>
+        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div className="bg-cyan-500 h-2 rounded-full" style={{ width: `${challenge.aiSolvability.score}%` }}></div>
+        </div>
+        <p className="text-[11px] text-slate-400 leading-relaxed">{challenge.aiSolvability.suggestedImprovement}</p>
+      </div>
 
       {/* Rubric Criteria */}
       <div className="border border-slate-800 bg-slate-900/40 rounded-xl p-3.5">
@@ -93,39 +95,6 @@ export function ProblemStatement({ challenge }: ProblemStatementProps) {
               <span className="text-[11px] font-bold text-indigo-400 whitespace-nowrap">
                 {c.weight}%
               </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Test Cases Preview */}
-      <div className="border border-slate-800 bg-slate-900/40 rounded-xl p-3.5">
-        <h3 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-          <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
-          Key Test Specifications
-        </h3>
-        <div className="space-y-2">
-          {challenge.testCases.map((tc) => (
-            <div
-              key={tc.id}
-              className="p-2 rounded-lg bg-slate-950/60 border border-slate-800/80 text-xs font-mono"
-            >
-              <div className="flex items-center justify-between text-[11px] font-sans text-slate-300 mb-1">
-                <span className="font-semibold text-indigo-300">{tc.name}</span>
-                {tc.isSecret && (
-                  <span className="text-[10px] bg-rose-500/10 text-rose-400 px-1 rounded border border-rose-500/20">
-                    Secret Invariant Test
-                  </span>
-                )}
-              </div>
-              <div className="text-[11px] text-slate-400 truncate">
-                <span className="text-slate-500">In: </span>
-                {tc.inputDescription}
-              </div>
-              <div className="text-[11px] text-emerald-400 truncate">
-                <span className="text-slate-500">Exp: </span>
-                {tc.expectedOutput}
-              </div>
             </div>
           ))}
         </div>

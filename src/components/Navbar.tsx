@@ -29,12 +29,12 @@ export function Navbar({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-sm tracking-tight text-white">ResilientAssess</span>
+              <span className="font-bold text-sm tracking-tight text-white">Mistake-to-Mastery</span>
               <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                AI-Resilient & Intelligent Feedback
+                Semester 1 C Programming
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">Authentic Mastery & Socratic Scaffolding</p>
+            <p className="text-[11px] text-slate-400">Grounded in Bloom's Taxonomy & AI-Resilient Assessment Design</p>
           </div>
         </div>
 
