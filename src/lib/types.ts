@@ -52,6 +52,8 @@ export interface AssessmentChallenge {
   aiSolvability: AISolvabilityMetadata;
   description: string;
   starterCode: Record<ProgrammingLanguage, string>;
+  correctCode?: Record<ProgrammingLanguage, string>;
+  predefinedFeedback?: FormativeFeedback;
   testCases: TestCase[];
   flawExplanation: BeginnerFlawExplanation;
   reflectionPrompt: string;

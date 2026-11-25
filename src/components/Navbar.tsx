@@ -29,8 +29,7 @@ export function Navbar({
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="font-bold text-[15px] tracking-tight text-[#f3f3ef]">mindsprint<span className="text-[#7cdda6]">.</span></span>
-              <span className="hidden sm:inline-flex text-[9px] uppercase font-semibold px-2 py-1 rounded-md bg-white/[.04] text-[#9a9e99] border border-white/[.08]">Learning studio · Semester 1 C</span>
+              <span className="font-bold text-[15px] tracking-tight text-[#f3f3ef]">AI Resilient Assessment and Intelligent Feedback System<span className="text-[#7cdda6]">.</span></span>
             </div>
             <p className="text-[11px] text-[#929691]">Grounded in Bloom's Taxonomy & AI-Resilient Assessment Design</p>
           </div>

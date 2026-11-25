@@ -9,6 +9,8 @@ interface CodeEditorProps {
   onChange: (value: string) => void;
   language: ProgrammingLanguage;
   onLanguageChange: (lang: ProgrammingLanguage) => void;
+  codeMode: 'buggy' | 'correct';
+  onCodeModeChange: (mode: 'buggy' | 'correct') => void;
   onExecute: () => void;
   onDefend: () => void;
   onReset: () => void;
@@ -22,6 +24,8 @@ export function CodeEditor({
   onChange,
   language,
   onLanguageChange,
+  codeMode,
+  onCodeModeChange,
   onExecute,
   onDefend,
   onReset,
@@ -66,7 +70,7 @@ export function CodeEditor({
     <div className="h-full flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
       {/* Top Action Bar */}
       <div className="flex items-center justify-between px-3 py-2 bg-slate-950/80 border-b border-slate-800 text-xs">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Terminal className="h-4 w-4 text-indigo-400" />
           <span className="font-semibold text-slate-300">Workspace Editor</span>
           <select
@@ -79,6 +83,34 @@ export function CodeEditor({
             <option value="typescript">TypeScript</option>
             <option value="python">Python 3</option>
           </select>
+
+          {/* Solution Mode Toggle: Buggy Starter vs Predefined Correct Solution */}
+          <div className="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700 ml-1">
+            <button
+              type="button"
+              onClick={() => onCodeModeChange('buggy')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition ${
+                codeMode === 'buggy'
+                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Inspect starter code containing intentional beginner mistake"
+            >
+              <span>⚠️ Buggy Code (Mistake)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onCodeModeChange('correct')}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium transition ${
+                codeMode === 'correct'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Load correct answer"
+            >
+              <span>✨ Correct Answer</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

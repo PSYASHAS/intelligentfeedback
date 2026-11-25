@@ -22,6 +22,7 @@ export default function AssessmentStudio() {
   const currentChallenge = ASSESSMENT_CHALLENGES.find((c) => c.id === currentChallengeId)!;
 
   const [language, setLanguage] = useState<ProgrammingLanguage>('c');
+  const [codeMode, setCodeMode] = useState<'buggy' | 'correct'>('buggy');
   const [code, setCode] = useState<string>(currentChallenge.starterCode.c);
 
   // Execution & Feedback states
@@ -41,6 +42,7 @@ export default function AssessmentStudio() {
 
   // Reset code when challenge or language changes
   useEffect(() => {
+    setCodeMode('buggy');
     setCode(currentChallenge.starterCode[language] || currentChallenge.starterCode.c);
     setTestResults([]);
     setTestSummary(null);
@@ -111,7 +113,30 @@ export default function AssessmentStudio() {
   };
 
   const handleResetCode = () => {
+    setCodeMode('buggy');
     setCode(currentChallenge.starterCode[language] || currentChallenge.starterCode.c);
+    setTestResults([]);
+    setTestSummary(null);
+    setFeedbackReport(null);
+    setShowTestDrawer(false);
+  };
+
+  const handleCodeModeChange = async (mode: 'buggy' | 'correct') => {
+    setCodeMode(mode);
+    if (mode === 'correct') {
+      const correctCodeStr = currentChallenge.correctCode?.[language] || currentChallenge.starterCode[language];
+      setCode(correctCodeStr);
+      setTestResults([]);
+      setTestSummary(null);
+      setFeedbackReport(null);
+      setShowTestDrawer(false);
+    } else {
+      setCode(currentChallenge.starterCode[language] || currentChallenge.starterCode.c);
+      setTestResults([]);
+      setTestSummary(null);
+      setFeedbackReport(null);
+      setShowTestDrawer(false);
+    }
   };
 
   // Run tests & request intelligent feedback
@@ -226,6 +251,8 @@ export default function AssessmentStudio() {
                 onChange={setCode}
                 language={language}
                 onLanguageChange={setLanguage}
+                codeMode={codeMode}
+                onCodeModeChange={handleCodeModeChange}
                 onExecute={handleRunTests}
                 onDefend={handleLaunchDefense}
                 onReset={handleResetCode}

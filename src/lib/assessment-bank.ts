@@ -72,6 +72,62 @@ int findMax(int numbers[], int size) {
             max_val = numbers[i]
     return max_val`
     },
+    correctCode: {
+      c: `#include <stdio.h>
+
+/**
+ * Lab 1: Correct Solution - Find Maximum Number in an Array
+ * Initializing max with numbers[0] handles both positive and negative integers.
+ */
+int findMax(int numbers[], int size) {
+    if (size <= 0) {
+        return 0; // Empty array guard
+    }
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    int max = numbers[0];
+
+    for (int i = 1; i < size; i++) {
+        if (numbers[i] > max) {
+            max = numbers[i];
+        }
+    }
+
+    return max;
+}`,
+      javascript: `function findMax(numbers, size) {
+    if (!numbers || size <= 0) return 0;
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    let max = numbers[0];
+    for (let i = 1; i < size; i++) {
+        if (numbers[i] > max) max = numbers[i];
+    }
+    return max;
+}`,
+      typescript: `export function findMax(numbers: number[], size: number): number {
+    if (!numbers || size <= 0) return 0;
+    let max = numbers[0];
+    for (let i = 1; i < size; i++) {
+        if (numbers[i] > max) max = numbers[i];
+    }
+    return max;
+}`,
+      python: `def find_max(numbers: list, size: int) -> int:
+    if not numbers or size <= 0:
+        return 0
+    max_val = numbers[0]
+    for i in range(1, size):
+        if numbers[i] > max_val:
+            max_val = numbers[i]
+    return max_val`
+    },
+    predefinedFeedback: {
+      wellDone: "Outstanding work! You initialized `max = numbers[0];`, guaranteeing that `max` always starts as a valid member of the array.",
+      problem: "Zero remaining flaws. All positive, all-negative, and single-element arrays passed flawlessly (4/4 test cases).",
+      why: "In contrast to the buggy starter code which used `int max = 0;` (failing when all values are negative), setting `max = numbers[0]` preserves the comparison invariant across the full integer range.",
+      improvement: "Flawless solution! Notice that starting the loop from `i = 1` avoids comparing `numbers[0] > numbers[0]` on the first iteration, saving an unnecessary cycle.",
+      nextStep: "Click 'Submit & Socratic Defend' to record your reasoning and claim Mastered status!"
+    },
     flawExplanation: {
       identifiedMistake: "Initializing int max = 0;. If all numbers in the array are negative (e.g. {-8, -3, -10}), max remains 0, which is incorrect because 0 was never in the array!",
       rootCause: "Mental model assumption that numbers are always positive, failing to consider negative integers.",
@@ -179,6 +235,64 @@ int countVowels(char text[]) {
             count += 1
     return count`
     },
+    correctCode: {
+      c: `#include <stdio.h>
+#include <ctype.h>
+
+/**
+ * Lab 2: Correct Solution - Count Vowels in a String
+ * Handles case-insensitivity using tolower() from <ctype.h>.
+ */
+int countVowels(char text[]) {
+    int count = 0;
+
+    // Traverses until the null-terminator '\\0'
+    for (int i = 0; text[i] != '\\0'; i++) {
+        char ch = tolower(text[i]);
+        
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+            count++;
+        }
+    }
+
+    return count;
+}`,
+      javascript: `function countVowels(text) {
+    let count = 0;
+    for (let i = 0; i < text.length; i++) {
+        let ch = text[i].toLowerCase();
+        // CORRECT: Checks both lowercase and uppercase vowels
+        if (ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u') {
+            count++;
+        }
+    }
+    return count;
+}`,
+      typescript: `export function countVowels(text: string): number {
+    let count = 0;
+    for (let i = 0; i < text.length; i++) {
+        let ch = text[i].toLowerCase();
+        if (ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u') {
+            count++;
+        }
+    }
+    return count;
+}`,
+      python: `def count_vowels(text: str) -> int:
+    count = 0
+    for ch in text.lower():
+        if ch in ('a', 'e', 'i', 'o', 'u'):
+            count += 1
+    return count`
+    },
+    predefinedFeedback: {
+      wellDone: "Outstanding! You converted each character using `tolower()` from `<ctype.h>`, ensuring both uppercase ('A', 'E') and lowercase vowels are counted uniformly.",
+      problem: "None detected. Mixed-case words like 'Apple' and uppercase words like 'PROGRAMMING' now pass completely (4/4 test cases).",
+      why: "In C, character literals are ASCII byte values ('A' is 65, 'a' is 97). Normalizing characters before checking eliminates case-mismatch bugs.",
+      improvement: "Great code structure! Normalizing characters with `tolower()` simplifies conditions and eliminates duplicate checks.",
+      nextStep: "Click 'Submit & Socratic Defend' to demonstrate your mastery of C character handling and ASCII encoding."
+    },
     flawExplanation: {
       identifiedMistake: "The condition only checks lowercase characters ('a', 'e', 'i', 'o', 'u'). It misses uppercase vowels, returning 1 instead of 2 for 'Apple', and 0 instead of 3 for 'PROGRAMMING'.",
       rootCause: "In C, characters are numeric ASCII values ('A' is 65, 'a' is 97). Because 'A' == 'a' evaluates to false, uppercase letters are skipped.",
@@ -284,6 +398,58 @@ int sumEvenNumbers(int arr[], int size) {
             total += arr[i]
     return total`
     },
+    correctCode: {
+      c: `#include <stdio.h>
+
+/**
+ * Lab 3: Correct Solution - Sum of Even Numbers
+ * Uses standard 0-based indexing (i = 0; i < size; i++).
+ */
+int sumEvenNumbers(int arr[], int size) {
+    int total = 0;
+
+    // CORRECT: Loop starts at 0 and ends strictly before size
+    for (int i = 0; i < size; i++) {
+        int num = arr[i];
+
+        if (num > 0 && num % 2 == 0) {
+            total += num;
+        }
+    }
+
+    return total;
+}`,
+      javascript: `function sumEvenNumbers(arr, size) {
+    let total = 0;
+    // CORRECT: 0-based indexing from 0 to size - 1
+    for (let i = 0; i < size; i++) {
+        let num = arr[i];
+        if (num > 0 && num % 2 === 0) total += num;
+    }
+    return total;
+}`,
+      typescript: `export function sumEvenNumbers(arr: number[], size: number): number {
+    let total = 0;
+    for (let i = 0; i < size; i++) {
+        let num = arr[i];
+        if (num > 0 && num % 2 === 0) total += num;
+    }
+    return total;
+}`,
+      python: `def sum_even_numbers(arr: list, size: int) -> int:
+    total = 0
+    for i in range(size):
+        if i < len(arr) and arr[i] > 0 and arr[i] % 2 == 0:
+            total += arr[i]
+    return total`
+    },
+    predefinedFeedback: {
+      wellDone: "Flawless! You corrected the loop header to `for (int i = 0; i < size; i++)`, adhering strictly to C's 0-based indexing convention.",
+      problem: "No errors found. Array boundary invariants preserved and first elements like `arr[0]` are never missed (4/4 test cases passed).",
+      why: "C arrays occupy contiguous memory starting at index 0 up to `size - 1`. Starting at `i = 0` guarantees `arr[0]` is included and avoids accessing `arr[size]` out-of-bounds.",
+      improvement: "Clean and robust logic. Notice the filter condition `num > 0 && num % 2 == 0` correctly excludes negative even numbers and zeroes.",
+      nextStep: "Click 'Submit & Socratic Defend' to verify your understanding of array bounds and memory safety."
+    },
     flawExplanation: {
       identifiedMistake: "The loop starts at i = 1 and ends at i <= size. This skips the first element arr[0] and accesses arr[size] out-of-bounds!",
       rootCause: "Misunderstanding that C arrays are 0-indexed (indices range from 0 to size-1).",
@@ -370,6 +536,41 @@ void reverseArray(int arr[], int size, int result[]) {
       python: `def reverse_array(arr: list, size: int, result: list) -> None:
     for i in range(size):
         result[i] = arr[i]`
+    },
+    correctCode: {
+      c: `#include <stdio.h>
+
+/**
+ * Lab 4: Correct Solution - Reverse an Array
+ * Copies elements backwards into the result buffer using size - 1 - i.
+ */
+void reverseArray(int arr[], int size, int result[]) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for (int i = 0; i < size; i++) {
+        result[i] = arr[size - 1 - i];
+    }
+}`,
+      javascript: `function reverseArray(arr, size, result) {
+    // CORRECT: Reverse mapping with size - 1 - i
+    for (let i = 0; i < size; i++) {
+        result[i] = arr[size - 1 - i];
+    }
+}`,
+      typescript: `export function reverseArray(arr: number[], size: number, result: number[]): void {
+    for (let i = 0; i < size; i++) {
+        result[i] = arr[size - 1 - i];
+    }
+}`,
+      python: `def reverse_array(arr: list, size: int, result: list) -> None:
+    for i in range(size):
+        result[i] = arr[size - 1 - i]`
+    },
+    predefinedFeedback: {
+      wellDone: "Outstanding! You correctly utilized the mirror index formula `result[i] = arr[size - 1 - i];` to reverse the array into the destination buffer.",
+      problem: "Zero flaws. Odd-length, single-element, and multi-element arrays reverse with 100% accuracy (4/4 test cases).",
+      why: "When `i = 0`, `size - 1 - 0` points to the final element. As `i` increments, the source pointer moves backward while the destination pointer moves forward.",
+      improvement: "Superb! You could also compare this with in-place two-pointer reversal (`int temp = arr[left]; arr[left] = arr[right]; ...`) which avoids needing an extra `result` buffer.",
+      nextStep: "Click 'Submit & Socratic Defend' to discuss the memory complexity tradeoffs between buffer copying and in-place reversal."
     },
     flawExplanation: {
       identifiedMistake: "The assignment on line 10 assigns result[i] = arr[i];. This copies items in their original order instead of reverse.",

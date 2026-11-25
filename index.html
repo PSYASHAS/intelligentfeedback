@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mindsprint. — Learning Studio: Semester 1 C Coding</title>
+  <title>AI Resilient Assessment and Intelligent Feedback System</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: DM Sans, Manrope, DM Mono -->
@@ -126,10 +126,7 @@
         </div>
         <div>
           <div class="flex items-center gap-2.5">
-            <span class="font-extrabold text-[15px] tracking-tight text-[#f3f3ef]">mindsprint<span class="text-[#7cdda6]">.</span></span>
-            <span class="text-[9px] uppercase font-semibold px-2 py-0.5 rounded-md bg-white/[.04] text-[#9a9e99] border border-white/[.08]">
-              Learning Studio · Semester 1 C
-            </span>
+            <span class="font-extrabold text-[15px] tracking-tight text-[#f3f3ef]">AI Resilient Assessment and Intelligent Feedback System<span class="text-[#7cdda6]">.</span></span>
           </div>
           <p class="text-[11px] text-[#929691] mt-0.5">Grounded in Bloom's Taxonomy & AI-Resilient Assessment Design</p>
         </div>
@@ -180,7 +177,7 @@
   <!-- =================================================================== -->
   <div id="studentStudioView" class="flex-1 flex flex-col max-w-[1740px] w-full mx-auto px-5 py-6 space-y-5">
     
-    <!-- STUDIO INTRO HERO (Mindsprint Aesthetic) -->
+    <!-- STUDIO INTRO HERO -->
     <div class="studio-intro flex flex-wrap items-end justify-between gap-6 pb-2 border-b border-white/[.05]">
       <div>
         <div class="eyebrow">
@@ -327,10 +324,20 @@
         <div class="bg-[#1b1c1e] border border-[#303236] rounded-2xl overflow-hidden shadow-2xl">
           <!-- Editor Header -->
           <div class="flex items-center justify-between px-4 py-3 bg-[#202124] border-b border-[#34363a]">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <i data-lucide="code-2" class="w-4 h-4 text-[#8ae0b3]"></i>
               <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Solution Editor</span>
               <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-[#243d30] text-[#8ae0b3] border border-[#3b644b] font-mono">C (C99 / C11)</span>
+
+              <!-- Solution Mode Switcher -->
+              <div class="flex items-center bg-[#151618] p-0.5 rounded-lg border border-[#303236] ml-2">
+                <button id="btnBuggyMode" onclick="setCodeMode('buggy')" class="px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm" title="View buggy starter code with intentional beginner mistake">
+                  ⚠️ Buggy Code (Mistake)
+                </button>
+                <button id="btnCorrectMode" onclick="setCodeMode('correct')" class="px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-slate-200" title="Load correct answer">
+                  ✨ Correct Answer
+                </button>
+              </div>
             </div>
 
             <div class="flex items-center gap-2">

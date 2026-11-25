@@ -46,6 +46,28 @@ int findMax(int numbers[], int size) {
     }
 
     return max;
+} `,
+    correctCode: `#include <stdio.h>
+
+/**
+ * Lab 1: Correct Solution - Find Maximum Number in an Array
+ * Initializing max with numbers[0] handles both positive and negative integers.
+ */
+int findMax(int numbers[], int size) {
+    if (size <= 0) {
+        return 0; // Empty array guard
+    }
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    int max = numbers[0];
+
+    for (int i = 1; i < size; i++) {
+        if (numbers[i] > max) {
+            max = numbers[i];
+        }
+    }
+
+    return max;
 }`,
     flawExplanation: {
       identifiedMistake: "Line 12 initializes `int max = 0;`. If all numbers in the array are negative (e.g. {-8, -3, -10}), `max` remains 0, which is incorrect because 0 was never in the array!",
@@ -91,6 +113,28 @@ int countVowels(char text[]) {
         
         // MISTAKE: Only checks lowercase 'a', 'e', 'i', 'o', 'u'
         // Misses uppercase vowels like 'A', 'E', 'I', 'O', 'U'
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+            count++;
+        }
+    }
+
+    return count;
+}`,
+    correctCode: `#include <stdio.h>
+#include <ctype.h>
+
+/**
+ * Lab 2: Correct Solution - Count Vowels in a String
+ * Handles case insensitivity using tolower() from <ctype.h>.
+ */
+int countVowels(char text[]) {
+    int count = 0;
+
+    // Traverses until the null-terminator '\\0'
+    for (int i = 0; text[i] != '\\0'; i++) {
+        char ch = tolower(text[i]);
+        
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
         if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
             count++;
         }
@@ -147,6 +191,26 @@ int sumEvenNumbers(int arr[], int size) {
 
     return total;
 }`,
+    correctCode: `#include <stdio.h>
+
+/**
+ * Lab 3: Correct Solution - Sum of Even Numbers
+ * Uses standard 0-based indexing (i = 0; i < size; i++).
+ */
+int sumEvenNumbers(int arr[], int size) {
+    int total = 0;
+
+    // CORRECT: Loop starts at 0 and ends strictly before size
+    for (int i = 0; i < size; i++) {
+        int num = arr[i];
+
+        if (num > 0 && num % 2 == 0) {
+            total += num;
+        }
+    }
+
+    return total;
+}`,
     flawExplanation: {
       identifiedMistake: "Line 12 starts at `int i = 1` and stops at `i <= size`. This skips `arr[0]`, returning 10 instead of 12 for {2, 4, 6} and 10 instead of 18 for {8, 10}.",
       rootCause: "Confusing 1-based natural counting with 0-based programming array indexing in C.",
@@ -187,6 +251,18 @@ void reverseArray(int arr[], int size, int result[]) {
         result[i] = arr[i]; // Copies forward!
     }
 }`,
+    correctCode: `#include <stdio.h>
+
+/**
+ * Lab 4: Correct Solution - Reverse an Array
+ * Copies elements backwards into the result buffer using size - 1 - i.
+ */
+void reverseArray(int arr[], int size, int result[]) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for (int i = 0; i < size; i++) {
+        result[i] = arr[size - 1 - i];
+    }
+}`,
     flawExplanation: {
       identifiedMistake: "Line 9 iterates from 0 to size - 1 and assigns `result[i] = arr[i];`, producing an exact forward copy {1, 2, 3, 4} instead of reversing to {4, 3, 2, 1}.",
       rootCause: "Confusion between forward accumulation and backward indexing using `size - 1 - i`.",
@@ -211,6 +287,7 @@ void reverseArray(int arr[], int size, int result[]) {
 let currentChallengeKey = 'find_max';
 let currentChallenge = BEGINNER_CHALLENGES.find_max;
 let currentMode = 'student'; // 'student' | 'educator'
+let currentCodeMode = 'buggy'; // 'buggy' | 'correct'
 
 const masteryTracker = {
   find_max: 'identified',
@@ -233,6 +310,12 @@ function init() {
 function switchChallenge(key) {
   currentChallengeKey = key;
   currentChallenge = BEGINNER_CHALLENGES[key] || BEGINNER_CHALLENGES.find_max;
+  currentCodeMode = 'buggy';
+  const btnBuggy = document.getElementById('btnBuggyMode');
+  const btnCorrect = document.getElementById('btnCorrectMode');
+  if (btnBuggy) btnBuggy.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm";
+  if (btnCorrect) btnCorrect.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-slate-200";
+
   renderChallenge(currentChallenge);
   resetStarterCode();
   resetFeedbackUI();
@@ -301,10 +384,31 @@ function renderChallenge(c) {
   resetStarterCode();
 }
 
-function resetStarterCode() {
+function setCodeMode(mode) {
+  currentCodeMode = mode;
+  const btnBuggy = document.getElementById('btnBuggyMode');
+  const btnCorrect = document.getElementById('btnCorrectMode');
   const editor = document.getElementById('codeEditor');
-  editor.value = currentChallenge.starterCode;
-  updateLineNumbers();
+
+  if (mode === 'correct') {
+    if (btnBuggy) btnBuggy.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-slate-200";
+    if (btnCorrect) btnCorrect.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm";
+    
+    editor.value = currentChallenge.correctCode || currentChallenge.starterCode;
+    updateLineNumbers();
+    resetFeedbackUI();
+  } else {
+    if (btnBuggy) btnBuggy.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm";
+    if (btnCorrect) btnCorrect.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-slate-200";
+
+    editor.value = currentChallenge.starterCode;
+    updateLineNumbers();
+    resetFeedbackUI();
+  }
+}
+
+function resetStarterCode() {
+  setCodeMode('buggy');
 }
 
 function setupLineNumbers() {
