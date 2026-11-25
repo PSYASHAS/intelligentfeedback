@@ -34,9 +34,20 @@ export function CodeEditor({
   onPaste,
 }: CodeEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const gutterRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = React.useState(false);
 
   const lines = code.split('\n');
+
+  const syncScroll = () => {
+    if (gutterRef.current && textareaRef.current) {
+      gutterRef.current.scrollTop = textareaRef.current.scrollTop;
+    }
+  };
+
+  useEffect(() => {
+    syncScroll();
+  }, [code]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     onKeystroke(e.key);
@@ -150,12 +161,20 @@ export function CodeEditor({
       </div>
 
       {/* Editor Body with line numbers */}
-      <div className="relative flex-1 flex overflow-hidden font-mono text-xs">
+      <div className="relative flex-1 flex min-h-0 overflow-hidden font-mono text-xs">
         {/* Line Numbers */}
-        <div className="select-none py-3 px-2 bg-slate-950/60 text-slate-600 text-right w-10 border-r border-slate-800/60 font-mono text-[11px] leading-5">
+        <div
+          ref={gutterRef}
+          aria-hidden="true"
+          className="select-none overflow-hidden py-3 px-2.5 bg-slate-950/60 text-slate-500 text-right min-w-[2.75rem] border-r border-slate-800/60 font-mono text-[11.5px] leading-5"
+        >
           {lines.map((_, i) => (
-            <div key={i}>{i + 1}</div>
+            <div key={i} className="h-5 leading-5">
+              {i + 1}
+            </div>
           ))}
+          {/* Bottom spacer matches textarea horizontal scrollbar area */}
+          <div className="h-4" />
         </div>
 
         {/* Textarea */}
@@ -163,6 +182,7 @@ export function CodeEditor({
           ref={textareaRef}
           value={code}
           onChange={(e) => onChange(e.target.value)}
+          onScroll={syncScroll}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           spellCheck={false}

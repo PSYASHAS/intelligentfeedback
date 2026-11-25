@@ -5,18 +5,19 @@ import { ASSESSMENT_CHALLENGES } from '@/lib/assessment-bank';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { code, language, challengeId, testResults, telemetry } = body;
+    const { code, language, challengeId, testResults, executionResults, telemetry } = body;
 
     const challenge = ASSESSMENT_CHALLENGES.find((c) => c.id === challengeId);
     if (!challenge) {
       return NextResponse.json({ error: 'Assessment challenge not found' }, { status: 404 });
     }
 
-    const report = IntelligentFeedbackEngine.analyzeSubmission({
+    const report = await IntelligentFeedbackEngine.analyzeSubmission({
       code: code || '',
       language: language || 'javascript',
       challenge,
       testResults: testResults || { passed: 0, failed: 0, total: 0, failures: [] },
+      executionResults: Array.isArray(executionResults) ? executionResults : [],
       telemetry,
     });
 

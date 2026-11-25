@@ -125,6 +125,22 @@ export interface RubricScoreItem {
   comment: string;
 }
 
+export interface TestCaseExecutionResult {
+  id: string;
+  name: string;
+  passed: boolean;
+  input: string;
+  expected: string;
+  actual: string;
+  error?: string;
+}
+
+export interface ExecutionSummary {
+  passed: number;
+  failed: number;
+  total: number;
+}
+
 export interface IntelligentFeedbackReport {
   overallScore: number;
   authenticityConfidence: number;
@@ -133,6 +149,7 @@ export interface IntelligentFeedbackReport {
   formativeFeedback: FormativeFeedback;
   rubricBreakdown: RubricScoreItem[];
   masteryStage: MasteryStage;
+  analysisSource?: 'ai' | 'dynamic';
 }
 
 export interface DefenseQuestion {

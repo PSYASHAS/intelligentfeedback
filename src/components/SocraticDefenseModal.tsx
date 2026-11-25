@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { DefenseQuestion, AssessmentChallenge } from '@/lib/types';
+import { DefenseQuestion, AssessmentChallenge, ProgrammingLanguage } from '@/lib/types';
 import { 
   ShieldCheck, 
   HelpCircle, 
@@ -20,6 +20,7 @@ interface SocraticDefenseModalProps {
   onClose: () => void;
   challenge: AssessmentChallenge;
   studentCode: string;
+  language: ProgrammingLanguage;
   onDefenseComplete: (finalScoreBonus: number) => void;
 }
 
@@ -28,6 +29,7 @@ export function SocraticDefenseModal({
   onClose,
   challenge,
   studentCode,
+  language,
   onDefenseComplete,
 }: SocraticDefenseModalProps) {
   const [questions, setQuestions] = useState<DefenseQuestion[]>([]);
@@ -58,6 +60,7 @@ export function SocraticDefenseModal({
           action: 'start',
           challengeId: challenge.id,
           code: studentCode,
+          language,
         }),
       });
       const data = await res.json();
@@ -84,6 +87,8 @@ export function SocraticDefenseModal({
         body: JSON.stringify({
           action: 'evaluate',
           challengeId: challenge.id,
+          code: studentCode,
+          language,
           question: currentQ,
           answer: studentAnswer,
         }),

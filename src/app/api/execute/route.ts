@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ASSESSMENT_CHALLENGES } from '@/lib/assessment-bank';
 import { compileAndRunSolution } from '@/lib/code-runner';
+import { tryRunNativeTests } from '@/lib/native-runner';
 import { ProgrammingLanguage } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
@@ -13,6 +14,21 @@ export async function POST(req: NextRequest) {
     }
 
     const activeLang: ProgrammingLanguage = language || 'c';
+
+    // Try genuine native compiler/runtime (gcc, g++, python, javac/java) first
+    const nativeResults = await tryRunNativeTests(code || '', activeLang, challenge);
+    if (nativeResults) {
+      const passedCount = nativeResults.filter((r) => r.passed).length;
+      return NextResponse.json({
+        results: nativeResults,
+        summary: {
+          passed: passedCount,
+          failed: nativeResults.length - passedCount,
+          total: nativeResults.length,
+        },
+        executionEngine: 'native',
+      });
+    }
 
     let studentFn: any;
     try {

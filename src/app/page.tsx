@@ -172,6 +172,7 @@ export default function AssessmentStudio() {
           language,
           challengeId: currentChallenge.id,
           testResults: execData.summary,
+          executionResults: execData.results || [],
           telemetry: telemetryMetrics,
         }),
       });
@@ -300,6 +301,7 @@ export default function AssessmentStudio() {
         onClose={() => setIsDefenseOpen(false)}
         challenge={currentChallenge}
         studentCode={code}
+        language={language}
         onDefenseComplete={handleDefenseComplete}
       />
     </div>

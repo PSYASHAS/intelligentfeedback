@@ -1,3 +1,4 @@
+import vm from 'node:vm';
 import { ProgrammingLanguage } from './types';
 
 const CHALLENGE_FN_MAP: Record<string, string> = {
@@ -54,6 +55,33 @@ function replaceFunctionSignatures(code: string): string {
 }
 
 function transpileTypeScript(code: string): string {
+  try {
+    // Use real TypeScript compiler diagnostics when available
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ts = require('typescript') as typeof import('typescript');
+    const result = ts.transpileModule(code, {
+      reportDiagnostics: true,
+      compilerOptions: {
+        target: ts.ScriptTarget.ES2020,
+        module: ts.ModuleKind.None,
+      },
+    });
+    if (result.diagnostics && result.diagnostics.length > 0) {
+      const diag = result.diagnostics[0];
+      const msg = ts.flattenDiagnosticMessageText(diag.messageText, '\n');
+      const line =
+        diag.file && typeof diag.start === 'number'
+          ? diag.file.getLineAndCharacterOfPosition(diag.start).line + 1
+          : null;
+      throw new Error(line ? `Line ${line}: ${msg}` : msg);
+    }
+    return result.outputText.replace(/\bexport\s+/g, '');
+  } catch (err: any) {
+    if (err?.code !== 'MODULE_NOT_FOUND') {
+      throw err;
+    }
+  }
+
   return code
     .replace(/\bexport\s+/g, '')
     .replace(/(\b\w+)\s*:\s*(?:number\[\]|string\[\]|(?:number|string|boolean|void|any)\b)/g, '$1')
@@ -61,6 +89,65 @@ function transpileTypeScript(code: string): string {
       /(function\s+\w+\s*\([^)]*\))\s*:\s*[A-Za-z0-9_<>\[\]\s|]+(\s*\{)/g,
       '$1$2'
     );
+}
+
+function validateSemicolonSyntax(code: string, language: ProgrammingLanguage) {
+  const needsSemicolons = ['c', 'cpp', 'java', 'csharp', 'rust', 'php'].includes(language);
+  if (!needsSemicolons) return;
+
+  const lines = code.split('\n');
+  let inBlockComment = false;
+
+  for (let idx = 0; idx < lines.length; idx++) {
+    let line = lines[idx];
+    if (inBlockComment) {
+      const endIdx = line.indexOf('*/');
+      if (endIdx === -1) continue;
+      line = line.slice(endIdx + 2);
+      inBlockComment = false;
+    }
+
+    // Strip inline block comments
+    line = line.replace(/\/\*[\s\S]*?\*\//g, '');
+    const startBlock = line.indexOf('/*');
+    if (startBlock !== -1) {
+      line = line.slice(0, startBlock);
+      inBlockComment = true;
+    }
+
+    line = stripLineComment(line, '//').trim();
+    if (!line) continue;
+    if (
+      line.startsWith('#') ||
+      line.startsWith('<?') ||
+      line.startsWith('?>') ||
+      line.startsWith('@') ||
+      line.endsWith('{') ||
+      line.endsWith('}') ||
+      line.endsWith(';') ||
+      line.endsWith(',') ||
+      line.endsWith(':') ||
+      /^(?:if|else\s+if|else|for|while|switch)\b/.test(line)
+    ) {
+      continue;
+    }
+
+    // Multi-line signatures or statements ending with ')' before '{' on next line
+    const nextNonEmpty = lines
+      .slice(idx + 1)
+      .map((l) => stripLineComment(l, '//').trim())
+      .find((l) => l.length > 0);
+    if (line.endsWith(')') && nextNonEmpty?.startsWith('{')) {
+      continue;
+    }
+
+    // In Rust, final implicit return expression without semicolon is valid before '}'
+    if (language === 'rust' && nextNonEmpty?.startsWith('}')) {
+      continue;
+    }
+
+    throw new Error(`Syntax error on line ${idx + 1}: expected ';' at end of statement ("${line}")`);
+  }
 }
 
 function transpileCStyle(code: string, language: ProgrammingLanguage): string {
@@ -373,6 +460,7 @@ export function compileAndRunSolution(
   language: ProgrammingLanguage,
   challengeId: string
 ) {
+  validateSemicolonSyntax(code, language);
   let js = code;
 
   switch (language) {
@@ -415,6 +503,26 @@ export function compileAndRunSolution(
 
   const fnName = getTargetFnName(challengeId);
   const helper = `const __tolower = (c) => (typeof c === 'number' ? String.fromCharCode(c).toLowerCase() : String(c).toLowerCase());`;
-  const sandbox = new Function(`${helper}\n${js};\nreturn ${fnName};`);
-  return sandbox();
+  const wrappedCode = `'use strict';\n${helper}\n${js};\n(typeof ${fnName} === 'function' ? ${fnName} : null);`;
+
+  const context = vm.createContext({});
+  const compiledFn = vm.runInContext(wrappedCode, context, { timeout: 1000 });
+
+  if (typeof compiledFn !== 'function') {
+    throw new Error(`Expected function "${fnName}" was not defined or could not be parsed.`);
+  }
+
+  // Wrap each test invocation in vm timeout by executing via a short-lived script call inside the context
+  return (...args: unknown[]) => {
+    context.__args = args;
+    context.__fn = compiledFn;
+    try {
+      return vm.runInContext('__fn(...__args)', context, { timeout: 1000 });
+    } catch (err: any) {
+      if (err?.code === 'ERR_SCRIPT_EXECUTION_TIMEOUT') {
+        throw new Error('Execution timed out after 1000ms (possible infinite loop).');
+      }
+      throw err;
+    }
+  };
 }

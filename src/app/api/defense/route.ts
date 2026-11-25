@@ -5,7 +5,7 @@ import { ASSESSMENT_CHALLENGES } from '@/lib/assessment-bank';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, challengeId, code, question, answer } = body;
+    const { action, challengeId, code, language, question, answer } = body;
 
     const challenge = ASSESSMENT_CHALLENGES.find((c) => c.id === challengeId);
     if (!challenge) {
@@ -13,7 +13,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'start') {
-      const questions = SocraticDefenseAgent.generateQuestions(challenge, code || '');
+      const questions = await SocraticDefenseAgent.generateQuestions(
+        challenge,
+        code || '',
+        language || 'c'
+      );
       return NextResponse.json({ success: true, questions });
     }
 
@@ -21,7 +25,11 @@ export async function POST(req: NextRequest) {
       if (!question || !answer) {
         return NextResponse.json({ error: 'Question and answer are required' }, { status: 400 });
       }
-      const evaluation = SocraticDefenseAgent.evaluateAnswer(question, answer);
+      const evaluation = await SocraticDefenseAgent.evaluateAnswer(question, answer, {
+        challenge,
+        code,
+        language,
+      });
       return NextResponse.json({ success: true, evaluation });
     }
 

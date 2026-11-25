@@ -60,6 +60,11 @@ export function IntelligentFeedback({ report, isLoading }: IntelligentFeedbackPr
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
               Stage: {masteryStage}
             </span>
+            {report.analysisSource && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase bg-slate-800 text-slate-300 border border-slate-700">
+                {report.analysisSource === 'ai' ? 'AI Diagnostics' : 'Dynamic Diagnostics'}
+              </span>
+            )}
           </div>
         </div>
       </div>
