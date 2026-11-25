@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { Play, RotateCcw, ShieldCheck, Terminal, Copy, Check } from 'lucide-react';
-import { ProgrammingLanguage } from '@/lib/types';
+import { ProgrammingLanguage, SUPPORTED_LANGUAGES } from '@/lib/types';
 
 interface CodeEditorProps {
   code: string;
@@ -76,12 +76,13 @@ export function CodeEditor({
           <select
             value={language}
             onChange={(e) => onLanguageChange(e.target.value as ProgrammingLanguage)}
-            className="bg-slate-800 text-slate-200 border border-slate-700 rounded px-2 py-0.5 text-xs focus:outline-none"
+            className="bg-slate-800 text-slate-200 border border-slate-700 rounded px-2 py-0.5 text-xs focus:outline-none cursor-pointer"
           >
-            <option value="c">C (C99 / C11)</option>
-            <option value="javascript">JavaScript (ES6)</option>
-            <option value="typescript">TypeScript</option>
-            <option value="python">Python 3</option>
+            {SUPPORTED_LANGUAGES.map((lang) => (
+              <option key={lang.id} value={lang.id}>
+                {lang.label}
+              </option>
+            ))}
           </select>
 
           {/* Solution Mode Toggle: Buggy Starter vs Predefined Correct Solution */}

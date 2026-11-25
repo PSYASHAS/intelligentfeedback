@@ -121,9 +121,6 @@
       
       <!-- Brand & Subtitle -->
       <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-[13px] bg-[#243d30] border border-[#3b644b] flex items-center justify-center shadow-lg shadow-emerald-950/30 text-white font-bold flex-shrink-0">
-          <i data-lucide="shield-check" class="w-5 h-5 text-[#8ae0b3]"></i>
-        </div>
         <div>
           <div class="flex items-center gap-2.5">
             <span class="font-extrabold text-[15px] tracking-tight text-[#f3f3ef]">AI Resilient Assessment and Intelligent Feedback System<span class="text-[#7cdda6]">.</span></span>
@@ -327,7 +324,21 @@
             <div class="flex items-center gap-2 flex-wrap">
               <i data-lucide="code-2" class="w-4 h-4 text-[#8ae0b3]"></i>
               <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Solution Editor</span>
-              <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-[#243d30] text-[#8ae0b3] border border-[#3b644b] font-mono">C (C99 / C11)</span>
+              <select id="languageSelector" onchange="switchLanguage(this.value)" class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#243d30] text-[#8ae0b3] border border-[#3b644b] font-mono outline-none cursor-pointer">
+                <option value="c" class="bg-[#1b1c1e] text-slate-100">C (C99 / C11)</option>
+                <option value="cpp" class="bg-[#1b1c1e] text-slate-100">C++ (C++17)</option>
+                <option value="java" class="bg-[#1b1c1e] text-slate-100">Java (JDK 17)</option>
+                <option value="python" class="bg-[#1b1c1e] text-slate-100">Python 3</option>
+                <option value="javascript" class="bg-[#1b1c1e] text-slate-100">JavaScript (ES6)</option>
+                <option value="typescript" class="bg-[#1b1c1e] text-slate-100">TypeScript</option>
+                <option value="csharp" class="bg-[#1b1c1e] text-slate-100">C# (.NET 8)</option>
+                <option value="go" class="bg-[#1b1c1e] text-slate-100">Go 1.22</option>
+                <option value="rust" class="bg-[#1b1c1e] text-slate-100">Rust</option>
+                <option value="kotlin" class="bg-[#1b1c1e] text-slate-100">Kotlin</option>
+                <option value="swift" class="bg-[#1b1c1e] text-slate-100">Swift</option>
+                <option value="php" class="bg-[#1b1c1e] text-slate-100">PHP 8</option>
+                <option value="ruby" class="bg-[#1b1c1e] text-slate-100">Ruby</option>
+              </select>
 
               <!-- Solution Mode Switcher -->
               <div class="flex items-center bg-[#151618] p-0.5 rounded-lg border border-[#303236] ml-2">
@@ -386,9 +397,9 @@
           <div id="formativeFeedbackContent" class="p-5 space-y-4 text-sm">
             <div class="py-10 text-center text-slate-500 space-y-2">
               <i data-lucide="sparkles" class="w-10 h-10 text-[#545b57] mx-auto"></i>
-              <p class="text-slate-200 font-semibold text-sm">Ready to Diagnose Your C Solution</p>
+              <p class="text-slate-200 font-semibold text-sm">Ready to Diagnose Your Solution</p>
               <p class="text-xs text-[#90948f] max-w-md mx-auto">
-                Click <strong class="text-[#8ae0b3]">Run Tests & Diagnose</strong> above. The engine will evaluate edge cases in C and generate structured formative feedback.
+                Click <strong class="text-[#8ae0b3]">Run Tests & Diagnose</strong> above. The engine will evaluate edge cases in your selected language and generate structured formative feedback.
               </p>
             </div>
           </div>

@@ -25,7 +25,7 @@ export function IntelligentFeedback({ report, isLoading }: IntelligentFeedbackPr
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-400">
         <div className="h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-sm font-semibold text-slate-200">Evaluating C Code & Synthesizing Formative Feedback...</p>
+        <p className="text-sm font-semibold text-slate-200">Evaluating Code & Synthesizing Formative Feedback...</p>
         <p className="text-xs text-slate-500 max-w-sm mt-1">
           Analyzing boundary invariants, character encodings, and synthesizing 4-part actionable feedback.
         </p>
@@ -37,7 +37,7 @@ export function IntelligentFeedback({ report, isLoading }: IntelligentFeedbackPr
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 text-center text-slate-500">
         <Lightbulb className="h-12 w-12 text-slate-700 mb-3" />
-        <p className="text-sm font-medium text-slate-400">Ready to Diagnose Your C Solution</p>
+        <p className="text-sm font-medium text-slate-400">Ready to Diagnose Your Solution</p>
         <p className="text-xs max-w-sm mt-1">
           Click <span className="text-indigo-400 font-semibold">Run Tests</span> above to initiate the evaluation and receive 4-part formative guidance.
         </p>

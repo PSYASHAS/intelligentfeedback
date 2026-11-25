@@ -1,43 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ASSESSMENT_CHALLENGES } from '@/lib/assessment-bank';
-
-function compileAndRunC(cCode: string, challengeId: string) {
-  const js = cCode
-    .replace(/#include\s*<.*?>/g, '')
-    .replace(/\bint\s+findMax\s*\([^)]*\)/g, 'function findMax(numbers, size)')
-    .replace(/\bint\s+countVowels\s*\([^)]*\)/g, 'function countVowels(text)')
-    .replace(/\bint\s+sumEvenNumbers\s*\([^)]*\)/g, 'function sumEvenNumbers(arr, size)')
-    .replace(/\bvoid\s+reverseArray\s*\([^)]*\)/g, 'function reverseArray(arr, size, result)')
-    .replace(/tolower\s*\((.*?)\)/g, '($1.toLowerCase ? $1.toLowerCase() : String.fromCharCode($1).toLowerCase())')
-    .replace(/\[i\]\s*!=\s*['"]\\0['"]/g, '.length > i')
-    .replace(/text\[i\]\s*!=\s*['"]\\0['"]/g, 'i < text.length')
-    .replace(/text\[i\]\s*!=\s*0/g, 'i < text.length')
-    .replace(/strlen\s*\((.*?)\)/g, '$1.length')
-    .replace(/\bint\s+/g, 'let ')
-    .replace(/\bchar\s+/g, 'let ')
-    .replace(/\bfloat\s+/g, 'let ')
-    .replace(/\bdouble\s+/g, 'let ');
-
-  const fnName = challengeId === 'find_max' ? 'findMax' :
-                 challengeId === 'count_vowels' ? 'countVowels' :
-                 challengeId === 'even_sum' ? 'sumEvenNumbers' : 'reverseArray';
-
-  const sandbox = new Function(`${js}; return ${fnName};`);
-  return sandbox();
-}
+import { compileAndRunSolution } from '@/lib/code-runner';
+import { ProgrammingLanguage } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
   try {
-    const { code, challengeId } = await req.json();
+    const { code, challengeId, language } = await req.json();
 
     const challenge = ASSESSMENT_CHALLENGES.find((c) => c.id === challengeId);
     if (!challenge) {
       return NextResponse.json({ error: 'Challenge not found' }, { status: 404 });
     }
 
+    const activeLang: ProgrammingLanguage = language || 'c';
+
     let studentFn: any;
     try {
-      studentFn = compileAndRunC(code, challenge.id);
+      studentFn = compileAndRunSolution(code, activeLang, challenge.id);
     } catch (compileErr: any) {
       return NextResponse.json({
         results: challenge.testCases.map((tc) => ({

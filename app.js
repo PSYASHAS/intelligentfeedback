@@ -283,11 +283,232 @@ void reverseArray(int arr[], int size, int result[]) {
   }
 };
 
+// --- SUPPORTED LANGUAGES & MULTI-LANGUAGE TEMPLATES ---
+const LANGUAGE_LABELS = {
+  c: 'C',
+  cpp: 'C++',
+  java: 'Java',
+  python: 'Python',
+  javascript: 'JavaScript',
+  typescript: 'TypeScript',
+  csharp: 'C#',
+  go: 'Go',
+  rust: 'Rust',
+  kotlin: 'Kotlin',
+  swift: 'Swift',
+  php: 'PHP',
+  ruby: 'Ruby'
+};
+
+const MULTI_LANG_TEMPLATES = {
+  find_max: {
+    cpp: {
+      buggy: `#include <vector>\nusing namespace std;\n\nint findMax(const vector<int>& numbers, int size) {\n    if (size <= 0) return 0;\n\n    // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!\n    int max = 0;\n\n    for (int i = 0; i < size; i++) {\n        if (numbers[i] > max) max = numbers[i];\n    }\n    return max;\n}`,
+      correct: `#include <vector>\nusing namespace std;\n\nint findMax(const vector<int>& numbers, int size) {\n    if (size <= 0) return 0;\n\n    // CORRECT: Initializing to numbers[0] handles negative numbers properly\n    int max = numbers[0];\n\n    for (int i = 1; i < size; i++) {\n        if (numbers[i] > max) max = numbers[i];\n    }\n    return max;\n}`
+    },
+    java: {
+      buggy: `public class Solution {\n    public static int findMax(int[] numbers, int size) {\n        if (numbers == null || size <= 0) return 0;\n\n        // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!\n        int max = 0;\n\n        for (int i = 0; i < size; i++) {\n            if (numbers[i] > max) max = numbers[i];\n        }\n        return max;\n    }\n}`,
+      correct: `public class Solution {\n    public static int findMax(int[] numbers, int size) {\n        if (numbers == null || size <= 0) return 0;\n\n        // CORRECT: Initializing to numbers[0] handles negative numbers properly\n        int max = numbers[0];\n\n        for (int i = 1; i < size; i++) {\n            if (numbers[i] > max) max = numbers[i];\n        }\n        return max;\n    }\n}`
+    },
+    python: {
+      buggy: `def find_max(numbers: list, size: int) -> int:\n    if not numbers or size <= 0:\n        return 0\n    # MISTAKE: Initializing to 0 fails for negative numbers\n    max_val = 0\n    for i in range(size):\n        if numbers[i] > max_val:\n            max_val = numbers[i]\n    return max_val`,
+      correct: `def find_max(numbers: list, size: int) -> int:\n    if not numbers or size <= 0:\n        return 0\n    # CORRECT: Initializing to numbers[0] handles negative numbers\n    max_val = numbers[0]\n    for i in range(1, size):\n        if numbers[i] > max_val:\n            max_val = numbers[i]\n    return max_val`
+    },
+    javascript: {
+      buggy: `function findMax(numbers, size) {\n    if (!numbers || size <= 0) return 0;\n    // MISTAKE: Initializing to 0 fails for negative numbers\n    let max = 0;\n    for (let i = 0; i < size; i++) {\n        if (numbers[i] > max) max = numbers[i];\n    }\n    return max;\n}`,
+      correct: `function findMax(numbers, size) {\n    if (!numbers || size <= 0) return 0;\n    let max = numbers[0];\n    for (let i = 1; i < size; i++) {\n        if (numbers[i] > max) max = numbers[i];\n    }\n    return max;\n}`
+    },
+    typescript: {
+      buggy: `export function findMax(numbers: number[], size: number): number {\n    if (!numbers || size <= 0) return 0;\n    let max = 0;\n    for (let i = 0; i < size; i++) {\n        if (numbers[i] > max) max = numbers[i];\n    }\n    return max;\n}`,
+      correct: `export function findMax(numbers: number[], size: number): number {\n    if (!numbers || size <= 0) return 0;\n    let max = numbers[0];\n    for (let i = 1; i < size; i++) {\n        if (numbers[i] > max) max = numbers[i];\n    }\n    return max;\n}`
+    },
+    csharp: {
+      buggy: `public class Solution {\n    public static int FindMax(int[] numbers, int size) {\n        if (numbers == null || size <= 0) return 0;\n        int max = 0;\n        for (int i = 0; i < size; i++) {\n            if (numbers[i] > max) max = numbers[i];\n        }\n        return max;\n    }\n}`,
+      correct: `public class Solution {\n    public static int FindMax(int[] numbers, int size) {\n        if (numbers == null || size <= 0) return 0;\n        int max = numbers[0];\n        for (int i = 1; i < size; i++) {\n            if (numbers[i] > max) max = numbers[i];\n        }\n        return max;\n    }\n}`
+    },
+    go: {
+      buggy: `package main\n\nfunc findMax(numbers []int, size int) int {\n    if size <= 0 {\n        return 0\n    }\n    max := 0\n    for i := 0; i < size; i++ {\n        if numbers[i] > max {\n            max = numbers[i]\n        }\n    }\n    return max\n}`,
+      correct: `package main\n\nfunc findMax(numbers []int, size int) int {\n    if size <= 0 {\n        return 0\n    }\n    max := numbers[0]\n    for i := 1; i < size; i++ {\n        if numbers[i] > max {\n            max = numbers[i]\n        }\n    }\n    return max\n}`
+    },
+    rust: {
+      buggy: `pub fn find_max(numbers: &[i32], size: usize) -> i32 {\n    if size == 0 {\n        return 0;\n    }\n    let mut max_val = 0;\n    for i in 0..size {\n        if numbers[i] > max_val {\n            max_val = numbers[i];\n        }\n    }\n    return max_val;\n}`,
+      correct: `pub fn find_max(numbers: &[i32], size: usize) -> i32 {\n    if size == 0 {\n        return 0;\n    }\n    let mut max_val = numbers[0];\n    for i in 1..size {\n        if numbers[i] > max_val {\n            max_val = numbers[i];\n        }\n    }\n    return max_val;\n}`
+    },
+    kotlin: {
+      buggy: `fun findMax(numbers: IntArray, size: Int): Int {\n    if (size <= 0) return 0\n    var max = 0\n    for (i in 0 until size) {\n        if (numbers[i] > max) max = numbers[i]\n    }\n    return max\n}`,
+      correct: `fun findMax(numbers: IntArray, size: Int): Int {\n    if (size <= 0) return 0\n    var max = numbers[0]\n    for (i in 1 until size) {\n        if (numbers[i] > max) max = numbers[i]\n    }\n    return max\n}`
+    },
+    swift: {
+      buggy: `func findMax(_ numbers: [Int], _ size: Int) -> Int {\n    if size <= 0 {\n        return 0\n    }\n    var maxVal = 0\n    for i in 0..<size {\n        if numbers[i] > maxVal {\n            maxVal = numbers[i]\n        }\n    }\n    return maxVal\n}`,
+      correct: `func findMax(_ numbers: [Int], _ size: Int) -> Int {\n    if size <= 0 {\n        return 0\n    }\n    var maxVal = numbers[0]\n    for i in 1..<size {\n        if numbers[i] > maxVal {\n            maxVal = numbers[i]\n        }\n    }\n    return maxVal\n}`
+    },
+    php: {
+      buggy: `<?php\nfunction findMax($numbers, $size) {\n    if ($size <= 0) return 0;\n    $max = 0;\n    for ($i = 0; $i < $size; $i++) {\n        if ($numbers[$i] > $max) $max = $numbers[$i];\n    }\n    return $max;\n}`,
+      correct: `<?php\nfunction findMax($numbers, $size) {\n    if ($size <= 0) return 0;\n    $max = $numbers[0];\n    for ($i = 1; $i < $size; $i++) {\n        if ($numbers[$i] > $max) $max = $numbers[$i];\n    }\n    return $max;\n}`
+    },
+    ruby: {
+      buggy: `def find_max(numbers, size)\n  if size <= 0\n    return 0\n  end\n  max_val = 0\n  for i in 0...size\n    if numbers[i] > max_val\n      max_val = numbers[i]\n    end\n  end\n  return max_val\nend`,
+      correct: `def find_max(numbers, size)\n  if size <= 0\n    return 0\n  end\n  max_val = numbers[0]\n  for i in 1...size\n    if numbers[i] > max_val\n      max_val = numbers[i]\n    end\n  end\n  return max_val\nend`
+    }
+  },
+  count_vowels: {
+    cpp: {
+      buggy: `#include <string>\n#include <cctype>\nusing namespace std;\n\nint countVowels(const string& text) {\n    int count = 0;\n    for (size_t i = 0; i < text.length(); i++) {\n        char ch = text[i];\n        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {\n            count++;\n        }\n    }\n    return count;\n}`,
+      correct: `#include <string>\n#include <cctype>\nusing namespace std;\n\nint countVowels(const string& text) {\n    int count = 0;\n    for (size_t i = 0; i < text.length(); i++) {\n        char ch = std::tolower(text[i]);\n        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {\n            count++;\n        }\n    }\n    return count;\n}`
+    },
+    java: {
+      buggy: `public class Solution {\n    public static int countVowels(String text) {\n        int count = 0;\n        for (int i = 0; i < text.length(); i++) {\n            char ch = text.charAt(i);\n            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {\n                count++;\n            }\n        }\n        return count;\n    }\n}`,
+      correct: `public class Solution {\n    public static int countVowels(String text) {\n        int count = 0;\n        for (int i = 0; i < text.length(); i++) {\n            char ch = Character.toLowerCase(text.charAt(i));\n            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {\n                count++;\n            }\n        }\n        return count;\n    }\n}`
+    },
+    python: {
+      buggy: `def count_vowels(text: str) -> int:\n    count = 0\n    for ch in text:\n        if ch in ('a', 'e', 'i', 'o', 'u'):\n            count += 1\n    return count`,
+      correct: `def count_vowels(text: str) -> int:\n    count = 0\n    for ch in text.lower():\n        if ch in ('a', 'e', 'i', 'o', 'u'):\n            count += 1\n    return count`
+    },
+    javascript: {
+      buggy: `function countVowels(text) {\n    let count = 0;\n    for (let i = 0; i < text.length; i++) {\n        let ch = text[i];\n        if (ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u') count++;\n    }\n    return count;\n}`,
+      correct: `function countVowels(text) {\n    let count = 0;\n    for (let i = 0; i < text.length; i++) {\n        let ch = text[i].toLowerCase();\n        if (ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u') count++;\n    }\n    return count;\n}`
+    },
+    typescript: {
+      buggy: `export function countVowels(text: string): number {\n    let count = 0;\n    for (let i = 0; i < text.length; i++) {\n        let ch = text[i];\n        if (ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u') count++;\n    }\n    return count;\n}`,
+      correct: `export function countVowels(text: string): number {\n    let count = 0;\n    for (let i = 0; i < text.length; i++) {\n        let ch = text[i].toLowerCase();\n        if (ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u') count++;\n    }\n    return count;\n}`
+    },
+    csharp: {
+      buggy: `public class Solution {\n    public static int CountVowels(string text) {\n        int count = 0;\n        for (int i = 0; i < text.Length; i++) {\n            char ch = text[i];\n            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') count++;\n        }\n        return count;\n    }\n}`,
+      correct: `public class Solution {\n    public static int CountVowels(string text) {\n        int count = 0;\n        for (int i = 0; i < text.Length; i++) {\n            char ch = char.ToLower(text[i]);\n            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') count++;\n        }\n        return count;\n    }\n}`
+    },
+    go: {
+      buggy: `package main\n\nfunc countVowels(text string) int {\n    count := 0\n    for _, ch := range text {\n        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {\n            count++\n        }\n    }\n    return count\n}`,
+      correct: `package main\n\nimport "strings"\n\nfunc countVowels(text string) int {\n    count := 0\n    for _, ch := range strings.ToLower(text) {\n        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {\n            count++\n        }\n    }\n    return count\n}`
+    },
+    rust: {
+      buggy: `pub fn count_vowels(text: &str) -> i32 {\n    let mut count = 0;\n    for ch in text.chars() {\n        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {\n            count += 1;\n        }\n    }\n    return count;\n}`,
+      correct: `pub fn count_vowels(text: &str) -> i32 {\n    let mut count = 0;\n    for ch in text.to_ascii_lowercase().chars() {\n        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {\n            count += 1;\n        }\n    }\n    return count;\n}`
+    },
+    kotlin: {
+      buggy: `fun countVowels(text: String): Int {\n    var count = 0\n    for (ch in text) {\n        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') count++\n    }\n    return count\n}`,
+      correct: `fun countVowels(text: String): Int {\n    var count = 0\n    for (raw in text) {\n        val ch = raw.lowercaseChar()\n        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') count++\n    }\n    return count\n}`
+    },
+    swift: {
+      buggy: `func countVowels(_ text: String) -> Int {\n    var count = 0\n    for ch in text {\n        if ch == "a" || ch == "e" || ch == "i" || ch == "o" || ch == "u" {\n            count += 1\n        }\n    }\n    return count\n}`,
+      correct: `func countVowels(_ text: String) -> Int {\n    var count = 0\n    for ch in text.lowercased() {\n        if ch == "a" || ch == "e" || ch == "i" || ch == "o" || ch == "u" {\n            count += 1\n        }\n    }\n    return count\n}`
+    },
+    php: {
+      buggy: `<?php\nfunction countVowels($text) {\n    $count = 0;\n    for ($i = 0; $i < strlen($text); $i++) {\n        $ch = $text[$i];\n        if ($ch == 'a' || $ch == 'e' || $ch == 'i' || $ch == 'o' || $ch == 'u') $count++;\n    }\n    return $count;\n}`,
+      correct: `<?php\nfunction countVowels($text) {\n    $count = 0;\n    for ($i = 0; $i < strlen($text); $i++) {\n        $ch = strtolower($text[$i]);\n        if ($ch == 'a' || $ch == 'e' || $ch == 'i' || $ch == 'o' || $ch == 'u') $count++;\n    }\n    return $count;\n}`
+    },
+    ruby: {
+      buggy: `def count_vowels(text)\n  count = 0\n  text.each_char do |ch|\n    if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u'\n      count += 1\n    end\n  end\n  return count\nend`,
+      correct: `def count_vowels(text)\n  count = 0\n  text.downcase.each_char do |ch|\n    if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u'\n      count += 1\n    end\n  end\n  return count\nend`
+    }
+  },
+  even_sum: {
+    cpp: {
+      buggy: `#include <vector>\nusing namespace std;\n\nint sumEvenNumbers(const vector<int>& arr, int size) {\n    int total = 0;\n    for (int i = 1; i <= size; i++) {\n        int num = arr[i];\n        if (num > 0 && num % 2 == 0) total += num;\n    }\n    return total;\n}`,
+      correct: `#include <vector>\nusing namespace std;\n\nint sumEvenNumbers(const vector<int>& arr, int size) {\n    int total = 0;\n    for (int i = 0; i < size; i++) {\n        int num = arr[i];\n        if (num > 0 && num % 2 == 0) total += num;\n    }\n    return total;\n}`
+    },
+    java: {
+      buggy: `public class Solution {\n    public static int sumEvenNumbers(int[] arr, int size) {\n        int total = 0;\n        for (int i = 1; i <= size; i++) {\n            int num = arr[i];\n            if (num > 0 && num % 2 == 0) total += num;\n        }\n        return total;\n    }\n}`,
+      correct: `public class Solution {\n    public static int sumEvenNumbers(int[] arr, int size) {\n        int total = 0;\n        for (int i = 0; i < size; i++) {\n            int num = arr[i];\n            if (num > 0 && num % 2 == 0) total += num;\n        }\n        return total;\n    }\n}`
+    },
+    python: {
+      buggy: `def sum_even_numbers(arr: list, size: int) -> int:\n    total = 0\n    for i in range(1, size + 1):\n        if i < len(arr) and arr[i] > 0 and arr[i] % 2 == 0:\n            total += arr[i]\n    return total`,
+      correct: `def sum_even_numbers(arr: list, size: int) -> int:\n    total = 0\n    for i in range(size):\n        if i < len(arr) and arr[i] > 0 and arr[i] % 2 == 0:\n            total += arr[i]\n    return total`
+    },
+    javascript: {
+      buggy: `function sumEvenNumbers(arr, size) {\n    let total = 0;\n    for (let i = 1; i <= size; i++) {\n        let num = arr[i];\n        if (num > 0 && num % 2 === 0) total += num;\n    }\n    return total;\n}`,
+      correct: `function sumEvenNumbers(arr, size) {\n    let total = 0;\n    for (let i = 0; i < size; i++) {\n        let num = arr[i];\n        if (num > 0 && num % 2 === 0) total += num;\n    }\n    return total;\n}`
+    },
+    typescript: {
+      buggy: `export function sumEvenNumbers(arr: number[], size: number): number {\n    let total = 0;\n    for (let i = 1; i <= size; i++) {\n        let num = arr[i];\n        if (num > 0 && num % 2 === 0) total += num;\n    }\n    return total;\n}`,
+      correct: `export function sumEvenNumbers(arr: number[], size: number): number {\n    let total = 0;\n    for (let i = 0; i < size; i++) {\n        let num = arr[i];\n        if (num > 0 && num % 2 === 0) total += num;\n    }\n    return total;\n}`
+    },
+    csharp: {
+      buggy: `public class Solution {\n    public static int SumEvenNumbers(int[] arr, int size) {\n        int total = 0;\n        for (int i = 1; i <= size; i++) {\n            int num = arr[i];\n            if (num > 0 && num % 2 == 0) total += num;\n        }\n        return total;\n    }\n}`,
+      correct: `public class Solution {\n    public static int SumEvenNumbers(int[] arr, int size) {\n        int total = 0;\n        for (int i = 0; i < size; i++) {\n            int num = arr[i];\n            if (num > 0 && num % 2 == 0) total += num;\n        }\n        return total;\n    }\n}`
+    },
+    go: {
+      buggy: `package main\n\nfunc sumEvenNumbers(arr []int, size int) int {\n    total := 0\n    for i := 1; i <= size; i++ {\n        num := arr[i]\n        if num > 0 && num%2 == 0 {\n            total += num\n        }\n    }\n    return total\n}`,
+      correct: `package main\n\nfunc sumEvenNumbers(arr []int, size int) int {\n    total := 0\n    for i := 0; i < size; i++ {\n        num := arr[i]\n        if num > 0 && num%2 == 0 {\n            total += num\n        }\n    }\n    return total\n}`
+    },
+    rust: {
+      buggy: `pub fn sum_even_numbers(arr: &[i32], size: usize) -> i32 {\n    let mut total = 0;\n    for i in 1..=size {\n        let num = arr[i];\n        if num > 0 && num % 2 == 0 {\n            total += num;\n        }\n    }\n    return total;\n}`,
+      correct: `pub fn sum_even_numbers(arr: &[i32], size: usize) -> i32 {\n    let mut total = 0;\n    for i in 0..size {\n        let num = arr[i];\n        if num > 0 && num % 2 == 0 {\n            total += num;\n        }\n    }\n    return total;\n}`
+    },
+    kotlin: {
+      buggy: `fun sumEvenNumbers(arr: IntArray, size: Int): Int {\n    var total = 0\n    for (i in 1..size) {\n        val num = arr[i]\n        if (num > 0 && num % 2 == 0) total += num\n    }\n    return total\n}`,
+      correct: `fun sumEvenNumbers(arr: IntArray, size: Int): Int {\n    var total = 0\n    for (i in 0 until size) {\n        val num = arr[i]\n        if (num > 0 && num % 2 == 0) total += num\n    }\n    return total\n}`
+    },
+    swift: {
+      buggy: `func sumEvenNumbers(_ arr: [Int], _ size: Int) -> Int {\n    var total = 0\n    for i in 1...size {\n        let num = arr[i]\n        if num > 0 && num % 2 == 0 {\n            total += num\n        }\n    }\n    return total\n}`,
+      correct: `func sumEvenNumbers(_ arr: [Int], _ size: Int) -> Int {\n    var total = 0\n    for i in 0..<size {\n        let num = arr[i]\n        if num > 0 && num % 2 == 0 {\n            total += num\n        }\n    }\n    return total\n}`
+    },
+    php: {
+      buggy: `<?php\nfunction sumEvenNumbers($arr, $size) {\n    $total = 0;\n    for ($i = 1; $i <= $size; $i++) {\n        $num = $arr[$i];\n        if ($num > 0 && $num % 2 == 0) $total += $num;\n    }\n    return $total;\n}`,
+      correct: `<?php\nfunction sumEvenNumbers($arr, $size) {\n    $total = 0;\n    for ($i = 0; $i < $size; $i++) {\n        $num = $arr[$i];\n        if ($num > 0 && $num % 2 == 0) $total += $num;\n    }\n    return $total;\n}`
+    },
+    ruby: {
+      buggy: `def sum_even_numbers(arr, size)\n  total = 0\n  for i in 1..size\n    num = arr[i]\n    if num && num > 0 && num % 2 == 0\n      total += num\n    end\n  end\n  return total\nend`,
+      correct: `def sum_even_numbers(arr, size)\n  total = 0\n  for i in 0...size\n    num = arr[i]\n    if num > 0 && num % 2 == 0\n      total += num\n    end\n  end\n  return total\nend`
+    }
+  },
+  reverse_list: {
+    cpp: {
+      buggy: `#include <vector>\nusing namespace std;\n\nvoid reverseArray(const vector<int>& arr, int size, vector<int>& result) {\n    for (int i = 0; i < size; i++) {\n        result[i] = arr[i];\n    }\n}`,
+      correct: `#include <vector>\nusing namespace std;\n\nvoid reverseArray(const vector<int>& arr, int size, vector<int>& result) {\n    for (int i = 0; i < size; i++) {\n        result[i] = arr[size - 1 - i];\n    }\n}`
+    },
+    java: {
+      buggy: `public class Solution {\n    public static void reverseArray(int[] arr, int size, int[] result) {\n        for (int i = 0; i < size; i++) {\n            result[i] = arr[i];\n        }\n    }\n}`,
+      correct: `public class Solution {\n    public static void reverseArray(int[] arr, int size, int[] result) {\n        for (int i = 0; i < size; i++) {\n            result[i] = arr[size - 1 - i];\n        }\n    }\n}`
+    },
+    python: {
+      buggy: `def reverse_array(arr: list, size: int, result: list) -> None:\n    for i in range(size):\n        result[i] = arr[i]`,
+      correct: `def reverse_array(arr: list, size: int, result: list) -> None:\n    for i in range(size):\n        result[i] = arr[size - 1 - i]`
+    },
+    javascript: {
+      buggy: `function reverseArray(arr, size, result) {\n    for (let i = 0; i < size; i++) {\n        result[i] = arr[i];\n    }\n}`,
+      correct: `function reverseArray(arr, size, result) {\n    for (let i = 0; i < size; i++) {\n        result[i] = arr[size - 1 - i];\n    }\n}`
+    },
+    typescript: {
+      buggy: `export function reverseArray(arr: number[], size: number, result: number[]): void {\n    for (let i = 0; i < size; i++) {\n        result[i] = arr[i];\n    }\n}`,
+      correct: `export function reverseArray(arr: number[], size: number, result: number[]): void {\n    for (let i = 0; i < size; i++) {\n        result[i] = arr[size - 1 - i];\n    }\n}`
+    },
+    csharp: {
+      buggy: `public class Solution {\n    public static void ReverseArray(int[] arr, int size, int[] result) {\n        for (int i = 0; i < size; i++) {\n            result[i] = arr[i];\n        }\n    }\n}`,
+      correct: `public class Solution {\n    public static void ReverseArray(int[] arr, int size, int[] result) {\n        for (int i = 0; i < size; i++) {\n            result[i] = arr[size - 1 - i];\n        }\n    }\n}`
+    },
+    go: {
+      buggy: `package main\n\nfunc reverseArray(arr []int, size int, result []int) {\n    for i := 0; i < size; i++ {\n        result[i] = arr[i]\n    }\n}`,
+      correct: `package main\n\nfunc reverseArray(arr []int, size int, result []int) {\n    for i := 0; i < size; i++ {\n        result[i] = arr[size - 1 - i]\n    }\n}`
+    },
+    rust: {
+      buggy: `pub fn reverse_array(arr: &[i32], size: usize, result: &mut [i32]) {\n    for i in 0..size {\n        result[i] = arr[i];\n    }\n}`,
+      correct: `pub fn reverse_array(arr: &[i32], size: usize, result: &mut [i32]) {\n    for i in 0..size {\n        result[i] = arr[size - 1 - i];\n    }\n}`
+    },
+    kotlin: {
+      buggy: `fun reverseArray(arr: IntArray, size: Int, result: IntArray) {\n    for (i in 0 until size) {\n        result[i] = arr[i]\n    }\n}`,
+      correct: `fun reverseArray(arr: IntArray, size: Int, result: IntArray) {\n    for (i in 0 until size) {\n        result[i] = arr[size - 1 - i]\n    }\n}`
+    },
+    swift: {
+      buggy: `func reverseArray(_ arr: [Int], _ size: Int, _ result: inout [Int]) {\n    for i in 0..<size {\n        result[i] = arr[i]\n    }\n}`,
+      correct: `func reverseArray(_ arr: [Int], _ size: Int, _ result: inout [Int]) {\n    for i in 0..<size {\n        result[i] = arr[size - 1 - i]\n    }\n}`
+    },
+    php: {
+      buggy: `<?php\nfunction reverseArray($arr, $size, &$result) {\n    for ($i = 0; $i < $size; $i++) {\n        $result[$i] = $arr[$i];\n    }\n}`,
+      correct: `<?php\nfunction reverseArray($arr, $size, &$result) {\n    for ($i = 0; $i < $size; $i++) {\n        $result[$i] = $arr[$size - 1 - $i];\n    }\n}`
+    },
+    ruby: {
+      buggy: `def reverse_array(arr, size, result)\n  for i in 0...size\n    result[i] = arr[i]\n  end\nend`,
+      correct: `def reverse_array(arr, size, result)\n  for i in 0...size\n    result[i] = arr[size - 1 - i]\n  end\nend`
+    }
+  }
+};
+
 // --- APPLICATION STATE ---
 let currentChallengeKey = 'find_max';
 let currentChallenge = BEGINNER_CHALLENGES.find_max;
 let currentMode = 'student'; // 'student' | 'educator'
 let currentCodeMode = 'buggy'; // 'buggy' | 'correct'
+let currentLanguage = 'c';
 
 const masteryTracker = {
   find_max: 'identified',
@@ -384,6 +605,24 @@ function renderChallenge(c) {
   resetStarterCode();
 }
 
+function switchLanguage(lang) {
+  currentLanguage = lang || 'c';
+  setCodeMode(currentCodeMode);
+}
+
+function getCodeForLanguage(challengeKey, lang, mode) {
+  if (lang === 'c') {
+    const ch = BEGINNER_CHALLENGES[challengeKey];
+    return mode === 'correct' ? (ch.correctCode || ch.starterCode) : ch.starterCode;
+  }
+  const tpl = MULTI_LANG_TEMPLATES[challengeKey]?.[lang];
+  if (tpl) {
+    return mode === 'correct' ? tpl.correct : tpl.buggy;
+  }
+  const ch = BEGINNER_CHALLENGES[challengeKey];
+  return mode === 'correct' ? (ch.correctCode || ch.starterCode) : ch.starterCode;
+}
+
 function setCodeMode(mode) {
   currentCodeMode = mode;
   const btnBuggy = document.getElementById('btnBuggyMode');
@@ -394,14 +633,14 @@ function setCodeMode(mode) {
     if (btnBuggy) btnBuggy.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-slate-200";
     if (btnCorrect) btnCorrect.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm";
     
-    editor.value = currentChallenge.correctCode || currentChallenge.starterCode;
+    editor.value = getCodeForLanguage(currentChallengeKey, currentLanguage, 'correct');
     updateLineNumbers();
     resetFeedbackUI();
   } else {
     if (btnBuggy) btnBuggy.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm";
     if (btnCorrect) btnCorrect.className = "px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-slate-200";
 
-    editor.value = currentChallenge.starterCode;
+    editor.value = getCodeForLanguage(currentChallengeKey, currentLanguage, 'buggy');
     updateLineNumbers();
     resetFeedbackUI();
   }
@@ -456,34 +695,249 @@ function advanceMastery(nextStage) {
   updateMasteryBadge();
 }
 
-// --- C CODE TO JAVASCRIPT SIMULATION TRANSPILER ---
-function compileAndRunC(cCode) {
-  // Transpile C code for client-side test execution
-  let js = cCode
-    // Remove headers
-    .replace(/#include\s*<.*?>/g, '')
-    // Map C function headers
-    .replace(/\bint\s+findMax\s*\([^)]*\)/g, 'function findMax(numbers, size)')
-    .replace(/\bint\s+countVowels\s*\([^)]*\)/g, 'function countVowels(text)')
-    .replace(/\bint\s+sumEvenNumbers\s*\([^)]*\)/g, 'function sumEvenNumbers(arr, size)')
-    .replace(/\bvoid\s+reverseArray\s*\([^)]*\)/g, 'function reverseArray(arr, size, result)')
-    // Map C library functions & idioms
-    .replace(/tolower\s*\((.*?)\)/g, '($1.toLowerCase ? $1.toLowerCase() : String.fromCharCode($1).toLowerCase())')
-    .replace(/\[i\]\s*!=\s*['"]\\0['"]/g, '.length > i')
-    .replace(/text\[i\]\s*!=\s*['"]\\0['"]/g, 'i < text.length')
-    .replace(/text\[i\]\s*!=\s*0/g, 'i < text.length')
-    .replace(/strlen\s*\((.*?)\)/g, '$1.length')
-    // Map primitive types to let
-    .replace(/\bint\s+/g, 'let ')
-    .replace(/\bchar\s+/g, 'let ')
-    .replace(/\bfloat\s+/g, 'let ')
-    .replace(/\bdouble\s+/g, 'let ');
+// --- MULTI-LANGUAGE EXECUTION TRANSPILER ---
+function stripLineCommentForLang(line, commentToken) {
+  let inSingle = false;
+  let inDouble = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    const prev = i > 0 ? line[i - 1] : '';
+    if (ch === "'" && !inDouble && prev !== '\\') inSingle = !inSingle;
+    else if (ch === '"' && !inSingle && prev !== '\\') inDouble = !inDouble;
+    else if (!inSingle && !inDouble && line.startsWith(commentToken, i)) return line.slice(0, i);
+  }
+  return line;
+}
 
-  const fnName = currentChallengeKey === 'find_max' ? 'findMax' :
-                 currentChallengeKey === 'count_vowels' ? 'countVowels' :
-                 currentChallengeKey === 'even_sum' ? 'sumEvenNumbers' : 'reverseArray';
+function replaceMultiLangSignatures(code) {
+  return code
+    .replace(/(?:public\s+|private\s+|protected\s+)?(?:static\s+)?(?:pub\s+)?(?:export\s+)?(?:int|fn|func|fun|void|function)\s+(?:findMax|find_max|FindMax)\s*\([^)]*\)[^\{;\n]*(?=\{)/g, 'function findMax(numbers, size) ')
+    .replace(/(?:public\s+|private\s+|protected\s+)?(?:static\s+)?(?:pub\s+)?(?:export\s+)?(?:int|fn|func|fun|void|function)\s+(?:countVowels|count_vowels|CountVowels)\s*\([^)]*\)[^\{;\n]*(?=\{)/g, 'function countVowels(text) ')
+    .replace(/(?:public\s+|private\s+|protected\s+)?(?:static\s+)?(?:pub\s+)?(?:export\s+)?(?:int|fn|func|fun|void|function)\s+(?:sumEvenNumbers|sum_even_numbers|SumEvenNumbers)\s*\([^)]*\)[^\{;\n]*(?=\{)/g, 'function sumEvenNumbers(arr, size) ')
+    .replace(/(?:public\s+|private\s+|protected\s+)?(?:static\s+)?(?:pub\s+)?(?:export\s+)?(?:void|fn|func|fun|function)\s+(?:reverseArray|reverse_array|ReverseArray)\s*\([^)]*\)[^\{;\n]*(?=\{)/g, 'function reverseArray(arr, size, result) ');
+}
 
-  const sandbox = new Function(`${js}; return ${fnName};`);
+function transpilePythonToJs(code, challengeKey) {
+  const fnMap = {
+    find_max: 'findMax(numbers, size)',
+    count_vowels: 'countVowels(text)',
+    even_sum: 'sumEvenNumbers(arr, size)',
+    reverse_list: 'reverseArray(arr, size, result)'
+  };
+  const expr = (s) => s
+    .replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\bNone\b/g, 'null')
+    .replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\s+/g, '!')
+    .replace(/\blen\s*\(([^)]+)\)/g, '($1).length')
+    .replace(/\.lower\s*\(\s*\)/g, '.toLowerCase()')
+    .replace(/(\w+)\s+not\s+in\s+\(([^)]+)\)/g, '![$2].includes($1)')
+    .replace(/(\w+)\s+in\s+\(([^)]+)\)/g, '[$2].includes($1)')
+    .replace(/(\w+)\s+in\s+\[([^\]]+)\]/g, '[$2].includes($1)')
+    .replace(/(\w+)\s+in\s+(['"][^'"]+['"])/g, '$2.includes($1)');
+
+  const out = [];
+  const indentStack = [0];
+  const declared = new Set(['numbers', 'size', 'text', 'arr', 'result']);
+  for (const rawLine of code.split('\n')) {
+    const clean = stripLineCommentForLang(rawLine, '#').replace(/\s+$/, '');
+    if (!clean.trim()) continue;
+    const indent = (clean.match(/^(\s*)/) || ['', ''])[1].length;
+    const t = clean.trim();
+    while (indent < indentStack[indentStack.length - 1]) {
+      indentStack.pop();
+      out.push('}');
+    }
+    if (/^def\s+\w+\s*\([^)]*\)/.test(t)) {
+      out.push(`function ${fnMap[challengeKey]} {`);
+      indentStack.push(indent + 1);
+    } else if (t.startsWith('elif ') && t.endsWith(':')) {
+      out.push(`else if (${expr(t.slice(5, -1).trim())}) {`);
+      indentStack.push(indent + 1);
+    } else if (t === 'else:') {
+      out.push('else {');
+      indentStack.push(indent + 1);
+    } else if (t.startsWith('if ') && t.endsWith(':')) {
+      out.push(`if (${expr(t.slice(3, -1).trim())}) {`);
+      indentStack.push(indent + 1);
+    } else if (/^for\s+(\w+)\s+in\s+range\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\)\s*:$/.test(t)) {
+      const m = t.match(/^for\s+(\w+)\s+in\s+range\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\)\s*:$/);
+      declared.add(m[1]);
+      out.push(`for (let ${m[1]} = ${expr(m[2])}; ${m[1]} < ${expr(m[3])}; ${m[1]}++) {`);
+      indentStack.push(indent + 1);
+    } else if (/^for\s+(\w+)\s+in\s+range\s*\(\s*([^)]+)\s*\)\s*:$/.test(t)) {
+      const m = t.match(/^for\s+(\w+)\s+in\s+range\s*\(\s*([^)]+)\s*\)\s*:$/);
+      declared.add(m[1]);
+      out.push(`for (let ${m[1]} = 0; ${m[1]} < ${expr(m[2])}; ${m[1]}++) {`);
+      indentStack.push(indent + 1);
+    } else if (/^for\s+(\w+)\s+in\s+(.+)\s*:$/.test(t)) {
+      const m = t.match(/^for\s+(\w+)\s+in\s+(.+)\s*:$/);
+      declared.add(m[1]);
+      out.push(`for (let ${m[1]} of ${expr(m[2])}) {`);
+      indentStack.push(indent + 1);
+    } else {
+      let stmt = expr(t);
+      const am = stmt.match(/^([A-Za-z_]\w*)\s*=(?!=)\s*(.+)$/);
+      if (am && !declared.has(am[1])) {
+        declared.add(am[1]);
+        stmt = `let ${am[1]} = ${am[2]}`;
+      }
+      out.push(`${stmt};`);
+    }
+  }
+  while (indentStack.length > 1) {
+    indentStack.pop();
+    out.push('}');
+  }
+  return out.join('\n');
+}
+
+function transpileRubyToJs(code, challengeKey) {
+  const fnMap = {
+    find_max: 'findMax(numbers, size)',
+    count_vowels: 'countVowels(text)',
+    even_sum: 'sumEvenNumbers(arr, size)',
+    reverse_list: 'reverseArray(arr, size, result)'
+  };
+  const out = [];
+  const declared = new Set(['numbers', 'size', 'text', 'arr', 'result']);
+  for (const rawLine of code.split('\n')) {
+    const t = stripLineCommentForLang(rawLine, '#').trim();
+    if (!t) continue;
+    if (/^def\s+\w+\s*\([^)]*\)/.test(t)) {
+      out.push(`function ${fnMap[challengeKey]} {`);
+    } else if (t === 'end') {
+      out.push('}');
+    } else if (t === 'else') {
+      out.push('} else {');
+    } else if (t.startsWith('elsif ')) {
+      out.push(`} else if (${t.slice(6).replace(/\.downcase/g, '.toLowerCase()')}) {`);
+    } else if (t.startsWith('if ')) {
+      out.push(`if (${t.slice(3).replace(/\.downcase/g, '.toLowerCase()')}) {`);
+    } else if (/^for\s+(\w+)\s+in\s+([^\s.]+)\.\.\.([^\s]+)$/.test(t)) {
+      const m = t.match(/^for\s+(\w+)\s+in\s+([^\s.]+)\.\.\.([^\s]+)$/);
+      declared.add(m[1]);
+      out.push(`for (let ${m[1]} = ${m[2]}; ${m[1]} < ${m[3]}; ${m[1]}++) {`);
+    } else if (/^for\s+(\w+)\s+in\s+([^\s.]+)\.\.([^\s]+)$/.test(t)) {
+      const m = t.match(/^for\s+(\w+)\s+in\s+([^\s.]+)\.\.([^\s]+)$/);
+      declared.add(m[1]);
+      out.push(`for (let ${m[1]} = ${m[2]}; ${m[1]} <= ${m[3]}; ${m[1]}++) {`);
+    } else if (/^(.+?)\.each_char\s+do\s+\|(\w+)\|$/.test(t)) {
+      const m = t.match(/^(.+?)\.each_char\s+do\s+\|(\w+)\|$/);
+      declared.add(m[2]);
+      out.push(`for (let ${m[2]} of ${m[1].replace(/\.downcase/g, '.toLowerCase()')}) {`);
+    } else {
+      let stmt = t.replace(/\.downcase/g, '.toLowerCase()');
+      const am = stmt.match(/^([A-Za-z_]\w*)\s*=(?!=)\s*(.+)$/);
+      if (am && !declared.has(am[1])) {
+        declared.add(am[1]);
+        stmt = `let ${am[1]} = ${am[2]}`;
+      }
+      out.push(`${stmt};`);
+    }
+  }
+  return out.join('\n');
+}
+
+function compileAndRunSolution(code, language, challengeKey) {
+  let js = code;
+  if (language === 'javascript') {
+    js = code;
+  } else if (language === 'typescript') {
+    js = code
+      .replace(/\bexport\s+/g, '')
+      .replace(/(\b\w+)\s*:\s*(?:number\[\]|string\[\]|(?:number|string|boolean|void|any)\b)/g, '$1')
+      .replace(/(function\s+\w+\s*\([^)]*\))\s*:\s*[A-Za-z0-9_<>\[\]\s|]+(\s*\{)/g, '$1$2');
+  } else if (language === 'python') {
+    js = transpilePythonToJs(code, challengeKey);
+  } else if (language === 'ruby') {
+    js = transpileRubyToJs(code, challengeKey);
+  } else if (language === 'go') {
+    js = replaceMultiLangSignatures(
+      code.replace(/^\s*package\s+\w+\s*$/gm, '').replace(/^\s*import\s*\([\s\S]*?\)\s*$/gm, '').replace(/^\s*import\s+"[^"]+"\s*$/gm, '')
+    )
+      .replace(/unicode\.ToLower\s*\(/g, '__tolower(')
+      .replace(/strings\.ToLower\s*\(([^)]+)\)/g, 'String($1).toLowerCase()')
+      .replace(/\blen\s*\(([^)]+)\)/g, '($1).length')
+      .replace(/for\s+_,\s*(\w+)\s*:=\s*range\s+([^\{]+)\{/g, 'for (let $1 of $2) {')
+      .replace(/for\s+(\w+)\s*:=\s*([^;]+);\s*([^;]+);\s*([^\{]+)\{/g, 'for (let $1 = $2; $3; $4) {')
+      .replace(/\bvar\s+(\w+)\s+\w+\s*=/g, 'let $1 =')
+      .replace(/^(\s*)(\w+)\s*:=/gm, '$1let $2 =')
+      .replace(/\belse\s+if\s+([^\{]+)\{/g, 'else if ($1) {')
+      .replace(/\bif\s+([^\{]+)\{/g, 'if ($1) {');
+  } else if (language === 'rust') {
+    js = replaceMultiLangSignatures(code)
+      .replace(/\blet\s+mut\s+/g, 'let ')
+      .replace(/\.to_ascii_lowercase\s*\(\s*\)/g, '.toLowerCase()')
+      .replace(/\.to_lowercase\s*\(\s*\)/g, '.toLowerCase()')
+      .replace(/\.chars\s*\(\s*\)/g, '')
+      .replace(/\.len\s*\(\s*\)/g, '.length')
+      .replace(/for\s+(\w+)\s+in\s+([^.\s]+)\.\.=([^\{]+)\{/g, 'for (let $1 = $2; $1 <= $3; $1++) {')
+      .replace(/for\s+(\w+)\s+in\s+([^.\s]+)\.\.([^\{]+)\{/g, 'for (let $1 = $2; $1 < $3; $1++) {')
+      .replace(/for\s+(\w+)\s+in\s+([^\{]+)\{/g, 'for (let $1 of $2) {')
+      .replace(/\belse\s+if\s+([^\{]+)\{/g, 'else if ($1) {')
+      .replace(/\bif\s+([^\{]+)\{/g, 'if ($1) {');
+  } else if (language === 'kotlin') {
+    js = replaceMultiLangSignatures(code)
+      .replace(/\b(?:val|var)\s+/g, 'let ')
+      .replace(/\.lowercaseChar\s*\(\s*\)/g, '.toLowerCase()')
+      .replace(/\.lowercase\s*\(\s*\)/g, '.toLowerCase()')
+      .replace(/(\w+)\.size\b/g, '$1.length')
+      .replace(/for\s*\(\s*(\w+)\s+in\s+([^)]+?)\s+until\s+([^)]+)\s*\)/g, 'for (let $1 = $2; $1 < $3; $1++)')
+      .replace(/for\s*\(\s*(\w+)\s+in\s+([^)]+?)\.\.([^)]+)\s*\)/g, 'for (let $1 = $2; $1 <= $3; $1++)')
+      .replace(/for\s*\(\s*(\w+)\s+in\s+([^)]+)\s*\)/g, 'for (let $1 of $2)');
+  } else if (language === 'swift') {
+    js = replaceMultiLangSignatures(code)
+      .replace(/\b(?:var|let)\s+/g, 'let ')
+      .replace(/\.lowercased\s*\(\s*\)/g, '.toLowerCase()')
+      .replace(/\.count\b/g, '.length')
+      .replace(/for\s+(\w+)\s+in\s+([^.\s]+)\.\.\.([^\{]+)\{/g, 'for (let $1 = $2; $1 <= $3; $1++) {')
+      .replace(/for\s+(\w+)\s+in\s+([^.\s]+)\.\.<([^\{]+)\{/g, 'for (let $1 = $2; $1 < $3; $1++) {')
+      .replace(/for\s+(\w+)\s+in\s+([^\{]+)\{/g, 'for (let $1 of $2) {')
+      .replace(/\belse\s+if\s+([^\{]+)\{/g, 'else if ($1) {')
+      .replace(/\bif\s+([^\{]+)\{/g, 'if ($1) {');
+  } else if (language === 'php') {
+    const declared = new Set(['numbers', 'size', 'text', 'arr', 'result', 'i']);
+    js = code
+      .replace(/<\?php/gi, '').replace(/\?>/g, '').replace(/&\$/g, '$').replace(/\$([A-Za-z_]\w*)/g, '$1')
+      .replace(/\b(?:count|strlen)\s*\(([^)]+)\)/g, '($1).length')
+      .replace(/\bstrtolower\s*\(([^)]+)\)/g, 'String($1).toLowerCase()')
+      .replace(/for\s*\(\s*(\w+)\s*=/g, 'for (let $1 =')
+      .split('\n').map((l) => {
+        const m = l.match(/^(\s*)([A-Za-z_]\w*)\s*=(?!=)\s*(.+)$/);
+        if (m && !declared.has(m[2])) { declared.add(m[2]); return `${m[1]}let ${m[2]} = ${m[3]}`; }
+        return l;
+      }).join('\n');
+  } else {
+    js = code
+      .replace(/#include\s*<.*?>/g, '').replace(/#include\s*".*?"/g, '')
+      .replace(/using\s+namespace\s+\w+\s*;/g, '')
+      .replace(/^\s*import\s+[^;]+;/gm, '').replace(/^\s*using\s+[^;]+;/gm, '');
+    if (language === 'java' || language === 'csharp') {
+      const classRx = /^\s*(?:public\s+|internal\s+)?class\s+\w+\s*\{/m;
+      if (classRx.test(js)) js = js.replace(classRx, '').replace(/\}\s*$/, '');
+    }
+    js = replaceMultiLangSignatures(js)
+      .replace(/std::tolower\s*\(/g, '__tolower(')
+      .replace(/\btolower\s*\(/g, '__tolower(')
+      .replace(/Character\.toLowerCase\s*\(/g, '__tolower(')
+      .replace(/(?:char|Char)\.ToLower\s*\(/g, '__tolower(')
+      .replace(/\.ToLower\s*\(\s*\)/g, '.toLowerCase()')
+      .replace(/(\w+)\.charAt\s*\(([^)]+)\)/g, '$1[$2]')
+      .replace(/\[i\]\s*!=\s*['"]\\0['"]/g, '.length > i')
+      .replace(/text\[i\]\s*!=\s*['"]\\0['"]/g, 'i < text.length')
+      .replace(/text\[i\]\s*!=\s*0/g, 'i < text.length')
+      .replace(/strlen\s*\(([^)]+)\)/g, '($1).length')
+      .replace(/\.size\s*\(\s*\)/g, '.length')
+      .replace(/\.length\s*\(\s*\)/g, '.length')
+      .replace(/\.Length\b/g, '.length')
+      .replace(/\b(?:const\s+)?(?:std::)?(?:vector\s*<[^>]+>|string|String|int\[\]|size_t|int|char|float|double|long|boolean|bool|var)\s*&?\s+/g, 'let ');
+  }
+
+  const fnName = challengeKey === 'find_max' ? 'findMax' :
+                 challengeKey === 'count_vowels' ? 'countVowels' :
+                 challengeKey === 'even_sum' ? 'sumEvenNumbers' : 'reverseArray';
+
+  const helper = `const __tolower = (c) => (typeof c === 'number' ? String.fromCharCode(c).toLowerCase() : String(c).toLowerCase());`;
+  const sandbox = new Function(`${helper}\n${js};\nreturn ${fnName};`);
   return sandbox();
 }
 
@@ -495,17 +949,17 @@ function runTestsAndEvaluate() {
 
   let studentFn = null;
   try {
-    studentFn = compileAndRunC(code);
+    studentFn = compileAndRunSolution(code, currentLanguage, currentChallengeKey);
   } catch (err) {
     drawerBody.innerHTML = `
       <div class="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/40 text-rose-300 text-xs sm:text-sm">
         <strong class="font-bold flex items-center gap-1.5 mb-1 text-rose-400">
           <i data-lucide="alert-octagon" class="w-4 h-4"></i>
-          C Compilation / Syntax Error
+          ${LANGUAGE_LABELS[currentLanguage] || 'Code'} Compilation / Syntax Error
         </strong>
         <span>${err.message}</span>
       </div>`;
-    title.innerText = 'Test Suite (C Compilation Error)';
+    title.innerText = `Test Suite (${LANGUAGE_LABELS[currentLanguage] || 'Code'} Compilation Error)`;
     lucide.createIcons();
     return;
   }
@@ -560,83 +1014,84 @@ function runTestsAndEvaluate() {
   }
 }
 
-// --- 4-PART FORMATIVE FEEDBACK ENGINE (C LANGUAGE SPECIFIC) ---
+// --- 4-PART FORMATIVE FEEDBACK ENGINE (MULTI-LANGUAGE) ---
 function generateFormativeFeedback(code, passed, total) {
+  const langName = LANGUAGE_LABELS[currentLanguage] || 'C';
   let wellDone = "";
   let problem = "";
   let why = "";
   let improvement = "";
   let nextStep = "";
 
-  // ================= LAB 1: FIND MAX IN C =================
+  // ================= LAB 1: FIND MAX =================
   if (currentChallengeKey === 'find_max') {
-    const hasMaxZero = /int\s+max\s*=\s*0/.test(code);
+    const hasMaxZero = /(?:max|max_val|maxVal)\s*(?::?=)\s*0\b/.test(code);
 
     if (passed === total) {
-      wellDone = "Outstanding! You correctly initialized `int max = numbers[0];` to safely handle negative integers and maintained clean C loop bounds.";
-      problem = "None detected. All positive, negative, and single-element C arrays pass cleanly.";
-      why = "In C, by setting `max` to the first element `numbers[0]`, your comparison invariant holds true across the entire integer range (-2,147,483,648 to +2,147,483,647).";
+      wellDone = `Outstanding! In ${langName}, you initialized the maximum variable to \`numbers[0]\` to safely handle negative integers and maintained clean loop bounds.`;
+      problem = "None detected. All positive, negative, and single-element arrays pass cleanly.";
+      why = "By setting the baseline maximum to the first element `numbers[0]`, your comparison invariant holds true across both positive and negative numbers.";
       improvement = "Ready for the Socratic reflection: explain why this approach avoids magic numbers like `-999999`.";
       nextStep = "Click 'Mastery Check' to record your reasoning and claim Mastered status 🏆";
     } else if (hasMaxZero) {
-      wellDone = "Your `for (int i = 0; i < size; i++)` loop iterates correctly through the array and compares elements with `numbers[i] > max`. It works for positive numbers like {3, 7, 2, 9}.";
+      wellDone = `Your ${langName} loop iterates through the array and compares elements against the running maximum. It works for positive numbers like {3, 7, 2, 9}.`;
       problem = "Failed on all-negative arrays: `{-8, -3, -10}` returned `0` instead of `-3`, and `{-42}` returned `0` instead of `-42`.";
-      why = "You initialized `int max = 0;` on line 12. In C, because 0 is larger than all negative integers, `numbers[i] > max` is never true, so `max` remains 0. But 0 is not even in the array!";
-      improvement = "Initialize `max` using the first element of the array: `int max = numbers[0];` so that `max` starts with a real value from the dataset.";
-      nextStep = "Change line 12 to `int max = numbers[0];` and click 'Run Tests & Diagnose'.";
+      why = "You initialized the maximum variable to `0`. Because 0 is larger than all negative integers, `numbers[i] > max` is never true, so it remains 0—a value not even in the array!";
+      improvement = "Initialize the maximum variable using the first element of the array (`numbers[0]`) so it starts with a real value from the dataset.";
+      nextStep = "Update the initialization to `numbers[0]` and click 'Run Tests & Diagnose'.";
     } else {
-      wellDone = "Good effort setting up the C function structure and array traversal.";
+      wellDone = `Good effort setting up the ${langName} function structure and array traversal.`;
       problem = `Passed ${passed} of ${total} test cases. Check edge case handling for negative integers.`;
       why = "Ensure your comparison logic `numbers[i] > max` accurately tracks the largest value.";
-      improvement = "Initialize `int max = numbers[0];` and loop from `int i = 1; i < size; i++`.";
+      improvement = "Initialize the maximum variable to `numbers[0]` and loop from index `1` to `size - 1`.";
       nextStep = "Test with `{-8, -3, -10}` and verify the output is `-3`.";
     }
   }
 
-  // ================= LAB 2: COUNT VOWELS IN C =================
+  // ================= LAB 2: COUNT VOWELS =================
   else if (currentChallengeKey === 'count_vowels') {
-    const hasToLower = /tolower\s*\(/.test(code);
-    const checksUpperExplicitly = /'A'|'E'|'I'|'O'|'U'/.test(code);
+    const hasToLower = /tolower|toLower|ToLower|lower\(|lowercase|downcase|strtolower/i.test(code);
+    const checksUpperExplicitly = /['"]A['"]|['"]E['"]|['"]I['"]|['"]O['"]|['"]U['"]/.test(code);
 
     if (passed === total) {
       wellDone = hasToLower
-        ? "Outstanding! You used the C standard library function `tolower()` from `<ctype.h>`, ensuring both uppercase ('A', 'E') and lowercase vowels are counted uniformly."
-        : "Great job! You expanded your condition so both uppercase and lowercase vowels are correctly identified.";
+        ? `Outstanding! In ${langName}, you normalized character casing so both uppercase ('A', 'E') and lowercase vowels are counted uniformly.`
+        : `Great job! Your ${langName} condition handles both uppercase and lowercase vowels accurately.`;
       problem = "None! Handled lowercase (\"hello\"), mixed case (\"Apple\"), all uppercase (\"PROGRAMMING\"), and no vowels (\"rhythm\") cleanly.";
-      why = "In C, converting characters with `tolower()` normalizes ASCII byte values (turning 'A' [65] into 'a' [97]) before equality checks.";
-      improvement = "Clean C tip: Notice how `<ctype.h>` simplifies character checks without writing 10 separate || conditions!";
-      nextStep = "Click 'Mastery Check' to explain character representation in C and claim Mastered status 🏆";
+      why = "Normalizing characters to lowercase converts uppercase ASCII/Unicode values ('A' [65] -> 'a' [97]) before equality checks.";
+      improvement = "Clean tip: Normalizing case once per character avoids duplicating 10 separate vowel comparisons!";
+      nextStep = "Click 'Mastery Check' to explain character representation and claim Mastered status 🏆";
     } else if (!hasToLower && !checksUpperExplicitly) {
-      wellDone = "Your `text[i] != '\\0'` loop correctly traverses the C-string up to the null-terminator and counts lowercase vowels (like in \"hello\" [2] and \"rhythm\" [0]).";
+      wellDone = `Your ${langName} loop traverses the string and counts lowercase vowels (like in "hello" [2] and "rhythm" [0]).`;
       problem = "Failed on uppercase inputs: \"Apple\" returned 1 instead of 2 (missed capital 'A'), and \"PROGRAMMING\" returned 0 instead of 3 (missed 'O', 'A', 'I').";
-      why = "In C, characters are ASCII byte values: `'A'` is 65 and `'a'` is 97, so `'A' == 'a'` evaluates to false. Because line 17 only checks lowercase `'a', 'e', 'i', 'o', 'u'`, uppercase vowels are skipped.";
-      improvement = "Use `tolower()` from `<ctype.h>` on line 14: `char ch = tolower(text[i]);` before testing vowels.";
-      nextStep = "Change line 14 to `char ch = tolower(text[i]);` and click 'Run Tests & Diagnose'.";
+      why = "Characters are distinct by case ('A' is 65 and 'a' is 97, so `'A' == 'a'` is false). Checking only lowercase `'a', 'e', 'i', 'o', 'u'` skips uppercase vowels.";
+      improvement = `Normalize each character to lowercase in ${langName} (e.g., \`tolower()\` in C/C++, \`toLowerCase()\` in JS/Java, \`.lower()\` in Python) before testing vowels.`;
+      nextStep = "Add lowercase normalization and click 'Run Tests & Diagnose'.";
     } else {
-      wellDone = "C-string traversal loop is in place.";
+      wellDone = "String traversal loop is in place.";
       problem = `Passed ${passed} of ${total} tests. Review the failing inputs in the test results below.`;
       why = "Ensure you check for all 5 vowels (a, e, i, o, u) and handle both uppercase and lowercase forms.";
-      improvement = "Use `char ch = tolower(text[i]);` and check `ch == 'a' || ch == 'e' ...`.";
+      improvement = "Normalize each character to lowercase before checking `'a', 'e', 'i', 'o', 'u'`.";
       nextStep = "Re-run tests after verifying character comparison checks.";
     }
   }
 
-  // ================= LAB 3: EVEN SUM IN C =================
+  // ================= LAB 3: EVEN SUM =================
   else if (currentChallengeKey === 'even_sum') {
-    const hasOneBasedIndex = /for\s*\(\s*int\s+i\s*=\s*1\s*;/.test(code);
+    const hasOneBasedIndex = /for\s*\([^;]*\bi\s*:?=\s*1\b|range\s*\(\s*1\b|\b1\s*\.\.=?\.?\s*size\b|\b1\s+until\b/.test(code);
 
     if (passed === total) {
-      wellDone = "Great work! Your loop starts at index 0 and accurately sums positive even integers while filtering out odd and negative numbers.";
+      wellDone = `Great work in ${langName}! Your loop starts at index 0 and accurately sums positive even integers while filtering out odd and negative numbers.`;
       problem = "No errors detected. Handled even numbers, negative evens, and mixed inputs correctly.";
-      why = "In C, 0-based indexing (`i = 0; i < size`) guarantees that every element—from `arr[0]` to `arr[size - 1]`—is safely visited without out-of-bounds access.";
-      improvement = "Good practice: Notice that in C, we always pass `int size` alongside `int arr[]` because C arrays do not carry a `.length` property.";
-      nextStep = "Complete the Mastery Check reflection on 0-based array indexing in C.";
+      why = "0-based indexing (`0` up to `size - 1`) guarantees that every element—from `arr[0]` to `arr[size - 1]`—is safely visited without out-of-bounds access.";
+      improvement = "Good practice: Strict `< size` loop bounds prevent off-by-one errors across every mainstream language.";
+      nextStep = "Complete the Mastery Check reflection on 0-based array indexing.";
     } else if (hasOneBasedIndex) {
-      wellDone = "Your modulo check `num > 0 && num % 2 == 0` correctly identifies positive even integers.";
+      wellDone = "Your even-number filter (`num > 0 && num % 2 == 0`) correctly identifies positive even integers.";
       problem = "Failed on `{2, 4, 6}` (returned 10 instead of 12) and `{8, 10}` (returned 10 instead of 18). The very first item at `arr[0]` was skipped!";
-      why = "You initialized the loop at `int i = 1` on line 12. In C, arrays are 0-indexed: the first element is at `arr[0]`. Starting at `i = 1` skips `arr[0]` completely, and `i <= size` reads out of bounds!";
-      improvement = "Change the loop header from `int i = 1; i <= size` to standard 0-based traversal: `for (int i = 0; i < size; i++)`.";
-      nextStep = "Change line 12 to `for (int i = 0; i < size; i++)` and click 'Run Tests & Diagnose'.";
+      why = "Arrays are 0-indexed: the first element is at `arr[0]`. Starting at `1` skips `arr[0]` completely, and looping through `size` inclusively reads out of bounds!";
+      improvement = `Change the ${langName} loop to start at \`0\` and stop strictly before \`size\`.`;
+      nextStep = "Fix the loop bounds to `0 .. size - 1` and click 'Run Tests & Diagnose'.";
     } else {
       wellDone = "Accumulator setup is ready.";
       problem = `Passed ${passed} of ${total} tests.`;
@@ -646,27 +1101,27 @@ function generateFormativeFeedback(code, passed, total) {
     }
   }
 
-  // ================= LAB 4: REVERSE LIST IN C =================
+  // ================= LAB 4: REVERSE LIST =================
   else {
-    const hasForwardLoop = /result\[i\]\s*=\s*arr\[i\]/.test(code);
+    const hasForwardLoop = /result\s*\[\s*(?:\$)?i\s*\]\s*=\s*(?:\$)?arr\s*\[\s*(?:\$)?i\s*\]/.test(code);
 
     if (passed === total) {
-      wellDone = "Superb! You reversed the C array by calculating `arr[size - 1 - i]` and populated the `result[]` buffer correctly.";
-      problem = "Zero flaws. Odd-length, single-element, and multi-element C arrays reversed correctly.";
+      wellDone = `Superb ${langName} solution! You reversed the array by calculating \`arr[size - 1 - i]\` and populated \`result\` correctly.`;
+      problem = "Zero flaws. Odd-length, single-element, and multi-element arrays reversed correctly.";
       why = "Using the index mapping `result[i] = arr[size - 1 - i]` places the last element into index 0, reversing the sequence in a clean single pass.";
-      improvement = "Advanced C tip: In C, you could also reverse in-place by swapping `arr[start]` and `arr[end]` with a temporary variable to save memory!";
-      nextStep = "Proceed to the reflection to evaluate memory usage between new buffer vs in-place swap in C.";
+      improvement = "Next-level tip: You could also reverse in-place by swapping `arr[start]` and `arr[end]` with a temporary variable to save memory!";
+      nextStep = "Proceed to the reflection to evaluate memory usage between new buffer vs in-place swap.";
     } else if (hasForwardLoop) {
       wellDone = "Array initialization and function signature are ready.";
       problem = "The array is not reversed. For `{1, 2, 3, 4}`, your code produced `{1, 2, 3, 4}` (an exact forward copy).";
-      why = "Your assignment on line 10 assigns `result[i] = arr[i]`. This copies items from left to right in original order instead of reverse.";
-      improvement = "Map the index from the back: `result[i] = arr[size - 1 - i];` so that when `i = 0`, it takes `arr[size - 1]` (the last element).";
-      nextStep = "Change line 10 to `result[i] = arr[size - 1 - i];` and click 'Run Tests & Diagnose'.";
+      why = "Your assignment sets `result[i] = arr[i]`. This copies items from left to right in original order instead of reverse.";
+      improvement = "Map the index from the back: `result[i] = arr[size - 1 - i]` so that when `i = 0`, it takes `arr[size - 1]` (the last element).";
+      nextStep = "Update the assignment to `arr[size - 1 - i]` and click 'Run Tests & Diagnose'.";
     } else {
       wellDone = "Function structure is in place.";
       problem = `Passed ${passed} of ${total} tests.`;
       why = "Make sure each index `i` reads from `size - 1 - i`.";
-      improvement = "Check your index formula: `result[i] = arr[size - 1 - i];`.";
+      improvement = "Check your index formula: `result[i] = arr[size - 1 - i]`.";
       nextStep = "Re-run tests after adjusting the index calculation.";
     }
   }

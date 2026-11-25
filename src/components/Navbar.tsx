@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, Brain, BookOpen, ChevronDown } from 'lucide-react';
+import { Brain, BookOpen, ChevronDown } from 'lucide-react';
 import { AssessmentChallenge } from '@/lib/types';
 
 interface NavbarProps {
@@ -24,9 +24,6 @@ export function Navbar({
       <div className="max-w-[1740px] mx-auto flex flex-wrap items-center justify-between gap-4">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-[13px] bg-[#243d30] border border-[#3b644b] flex items-center justify-center shadow-lg shadow-emerald-950/30">
-            <ShieldCheck className="h-5 w-5 text-[#8ae0b3]" />
-          </div>
           <div>
             <div className="flex items-center gap-2.5">
               <span className="font-bold text-[15px] tracking-tight text-[#f3f3ef]">AI Resilient Assessment and Intelligent Feedback System<span className="text-[#7cdda6]">.</span></span>

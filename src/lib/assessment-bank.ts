@@ -70,7 +70,157 @@ int findMax(int numbers[], int size) {
     for i in range(size):
         if numbers[i] > max_val:
             max_val = numbers[i]
-    return max_val`
+    return max_val`,
+      cpp: `#include <vector>
+using namespace std;
+
+int findMax(const vector<int>& numbers, int size) {
+    if (size <= 0) return 0;
+
+    // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+    int max = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (numbers[i] > max) {
+            max = numbers[i];
+        }
+    }
+
+    return max;
+}`,
+      java: `public class Solution {
+    public static int findMax(int[] numbers, int size) {
+        if (numbers == null || size <= 0) {
+            return 0;
+        }
+
+        // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+        int max = 0;
+
+        for (int i = 0; i < size; i++) {
+            if (numbers[i] > max) {
+                max = numbers[i];
+            }
+        }
+
+        return max;
+    }
+}`,
+      csharp: `public class Solution {
+    public static int FindMax(int[] numbers, int size) {
+        if (numbers == null || size <= 0) {
+            return 0;
+        }
+
+        // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+        int max = 0;
+
+        for (int i = 0; i < size; i++) {
+            if (numbers[i] > max) {
+                max = numbers[i];
+            }
+        }
+
+        return max;
+    }
+}`,
+      go: `package main
+
+func findMax(numbers []int, size int) int {
+    if size <= 0 {
+        return 0
+    }
+
+    // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+    max := 0
+
+    for i := 0; i < size; i++ {
+        if numbers[i] > max {
+            max = numbers[i]
+        }
+    }
+
+    return max
+}`,
+      rust: `pub fn find_max(numbers: &[i32], size: usize) -> i32 {
+    if size == 0 {
+        return 0;
+    }
+
+    // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+    let mut max_val = 0;
+
+    for i in 0..size {
+        if numbers[i] > max_val {
+            max_val = numbers[i];
+        }
+    }
+
+    return max_val;
+}`,
+      kotlin: `fun findMax(numbers: IntArray, size: Int): Int {
+    if (size <= 0) return 0
+
+    // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+    var max = 0
+
+    for (i in 0 until size) {
+        if (numbers[i] > max) {
+            max = numbers[i]
+        }
+    }
+
+    return max
+}`,
+      swift: `func findMax(_ numbers: [Int], _ size: Int) -> Int {
+    if size <= 0 {
+        return 0
+    }
+
+    // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+    var maxVal = 0
+
+    for i in 0..<size {
+        if numbers[i] > maxVal {
+            maxVal = numbers[i]
+        }
+    }
+
+    return maxVal
+}`,
+      php: `<?php
+function findMax($numbers, $size) {
+    if ($size <= 0) {
+        return 0;
+    }
+
+    // MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+    $max = 0;
+
+    for ($i = 0; $i < $size; $i++) {
+        if ($numbers[$i] > $max) {
+            $max = $numbers[$i];
+        }
+    }
+
+    return $max;
+}`,
+      ruby: `def find_max(numbers, size)
+  if size <= 0
+    return 0
+  end
+
+  # MISTAKE HERE: Initializing to 0 fails when all numbers are negative!
+  max_val = 0
+
+  for i in 0...size
+    if numbers[i] > max_val
+      max_val = numbers[i]
+    end
+  end
+
+  return max_val
+end`
     },
     correctCode: {
       c: `#include <stdio.h>
@@ -119,7 +269,157 @@ int findMax(int numbers[], int size) {
     for i in range(1, size):
         if numbers[i] > max_val:
             max_val = numbers[i]
-    return max_val`
+    return max_val`,
+      cpp: `#include <vector>
+using namespace std;
+
+int findMax(const vector<int>& numbers, int size) {
+    if (size <= 0) return 0;
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    int max = numbers[0];
+
+    for (int i = 1; i < size; i++) {
+        if (numbers[i] > max) {
+            max = numbers[i];
+        }
+    }
+
+    return max;
+}`,
+      java: `public class Solution {
+    public static int findMax(int[] numbers, int size) {
+        if (numbers == null || size <= 0) {
+            return 0;
+        }
+
+        // CORRECT: Initializing to numbers[0] handles negative numbers properly
+        int max = numbers[0];
+
+        for (int i = 1; i < size; i++) {
+            if (numbers[i] > max) {
+                max = numbers[i];
+            }
+        }
+
+        return max;
+    }
+}`,
+      csharp: `public class Solution {
+    public static int FindMax(int[] numbers, int size) {
+        if (numbers == null || size <= 0) {
+            return 0;
+        }
+
+        // CORRECT: Initializing to numbers[0] handles negative numbers properly
+        int max = numbers[0];
+
+        for (int i = 1; i < size; i++) {
+            if (numbers[i] > max) {
+                max = numbers[i];
+            }
+        }
+
+        return max;
+    }
+}`,
+      go: `package main
+
+func findMax(numbers []int, size int) int {
+    if size <= 0 {
+        return 0
+    }
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    max := numbers[0]
+
+    for i := 1; i < size; i++ {
+        if numbers[i] > max {
+            max = numbers[i]
+        }
+    }
+
+    return max
+}`,
+      rust: `pub fn find_max(numbers: &[i32], size: usize) -> i32 {
+    if size == 0 {
+        return 0;
+    }
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    let mut max_val = numbers[0];
+
+    for i in 1..size {
+        if numbers[i] > max_val {
+            max_val = numbers[i];
+        }
+    }
+
+    return max_val;
+}`,
+      kotlin: `fun findMax(numbers: IntArray, size: Int): Int {
+    if (size <= 0) return 0
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    var max = numbers[0]
+
+    for (i in 1 until size) {
+        if (numbers[i] > max) {
+            max = numbers[i]
+        }
+    }
+
+    return max
+}`,
+      swift: `func findMax(_ numbers: [Int], _ size: Int) -> Int {
+    if size <= 0 {
+        return 0
+    }
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    var maxVal = numbers[0]
+
+    for i in 1..<size {
+        if numbers[i] > maxVal {
+            maxVal = numbers[i]
+        }
+    }
+
+    return maxVal
+}`,
+      php: `<?php
+function findMax($numbers, $size) {
+    if ($size <= 0) {
+        return 0;
+    }
+
+    // CORRECT: Initializing to numbers[0] handles negative numbers properly
+    $max = $numbers[0];
+
+    for ($i = 1; $i < $size; $i++) {
+        if ($numbers[$i] > $max) {
+            $max = $numbers[$i];
+        }
+    }
+
+    return $max;
+}`,
+      ruby: `def find_max(numbers, size)
+  if size <= 0
+    return 0
+  end
+
+  # CORRECT: Initializing to numbers[0] handles negative numbers properly
+  max_val = numbers[0]
+
+  for i in 1...size
+    if numbers[i] > max_val
+      max_val = numbers[i]
+    end
+  end
+
+  return max_val
+end`
     },
     predefinedFeedback: {
       wellDone: "Outstanding work! You initialized `max = numbers[0];`, guaranteeing that `max` always starts as a valid member of the array.",
@@ -233,7 +533,134 @@ int countVowels(char text[]) {
     for ch in text:
         if ch in ('a', 'e', 'i', 'o', 'u'):
             count += 1
-    return count`
+    return count`,
+      cpp: `#include <string>
+#include <cctype>
+using namespace std;
+
+int countVowels(const string& text) {
+    int count = 0;
+
+    for (size_t i = 0; i < text.length(); i++) {
+        char ch = text[i];
+
+        // MISTAKE: Only checks lowercase vowels
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+            count++;
+        }
+    }
+
+    return count;
+}`,
+      java: `public class Solution {
+    public static int countVowels(String text) {
+        int count = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+
+            // MISTAKE: Only checks lowercase vowels
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                count++;
+            }
+        }
+
+        return count;
+    }
+}`,
+      csharp: `public class Solution {
+    public static int CountVowels(string text) {
+        int count = 0;
+
+        for (int i = 0; i < text.Length; i++) {
+            char ch = text[i];
+
+            // MISTAKE: Only checks lowercase vowels
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                count++;
+            }
+        }
+
+        return count;
+    }
+}`,
+      go: `package main
+
+func countVowels(text string) int {
+    count := 0
+
+    for _, ch := range text {
+        // MISTAKE: Only checks lowercase vowels
+        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {
+            count++
+        }
+    }
+
+    return count
+}`,
+      rust: `pub fn count_vowels(text: &str) -> i32 {
+    let mut count = 0;
+
+    for ch in text.chars() {
+        // MISTAKE: Only checks lowercase vowels
+        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {
+            count += 1;
+        }
+    }
+
+    return count;
+}`,
+      kotlin: `fun countVowels(text: String): Int {
+    var count = 0
+
+    for (ch in text) {
+        // MISTAKE: Only checks lowercase vowels
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+            count++
+        }
+    }
+
+    return count
+}`,
+      swift: `func countVowels(_ text: String) -> Int {
+    var count = 0
+
+    for ch in text {
+        // MISTAKE: Only checks lowercase vowels
+        if ch == "a" || ch == "e" || ch == "i" || ch == "o" || ch == "u" {
+            count += 1
+        }
+    }
+
+    return count
+}`,
+      php: `<?php
+function countVowels($text) {
+    $count = 0;
+
+    for ($i = 0; $i < strlen($text); $i++) {
+        $ch = $text[$i];
+
+        // MISTAKE: Only checks lowercase vowels
+        if ($ch == 'a' || $ch == 'e' || $ch == 'i' || $ch == 'o' || $ch == 'u') {
+            $count++;
+        }
+    }
+
+    return $count;
+}`,
+      ruby: `def count_vowels(text)
+  count = 0
+
+  text.each_char do |ch|
+    # MISTAKE: Only checks lowercase vowels
+    if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u'
+      count += 1
+    end
+  end
+
+  return count
+end`
     },
     correctCode: {
       c: `#include <stdio.h>
@@ -284,7 +711,137 @@ int countVowels(char text[]) {
     for ch in text.lower():
         if ch in ('a', 'e', 'i', 'o', 'u'):
             count += 1
-    return count`
+    return count`,
+      cpp: `#include <string>
+#include <cctype>
+using namespace std;
+
+int countVowels(const string& text) {
+    int count = 0;
+
+    for (size_t i = 0; i < text.length(); i++) {
+        char ch = std::tolower(text[i]);
+
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+            count++;
+        }
+    }
+
+    return count;
+}`,
+      java: `public class Solution {
+    public static int countVowels(String text) {
+        int count = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = Character.toLowerCase(text.charAt(i));
+
+            // CORRECT: Checks lowercase and uppercase vowels uniformly
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                count++;
+            }
+        }
+
+        return count;
+    }
+}`,
+      csharp: `public class Solution {
+    public static int CountVowels(string text) {
+        int count = 0;
+
+        for (int i = 0; i < text.Length; i++) {
+            char ch = char.ToLower(text[i]);
+
+            // CORRECT: Checks lowercase and uppercase vowels uniformly
+            if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+                count++;
+            }
+        }
+
+        return count;
+    }
+}`,
+      go: `package main
+
+import "strings"
+
+func countVowels(text string) int {
+    count := 0
+
+    for _, ch := range strings.ToLower(text) {
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
+        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {
+            count++
+        }
+    }
+
+    return count
+}`,
+      rust: `pub fn count_vowels(text: &str) -> i32 {
+    let mut count = 0;
+
+    for ch in text.to_ascii_lowercase().chars() {
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
+        if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' {
+            count += 1;
+        }
+    }
+
+    return count;
+}`,
+      kotlin: `fun countVowels(text: String): Int {
+    var count = 0
+
+    for (raw in text) {
+        val ch = raw.lowercaseChar()
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u') {
+            count++
+        }
+    }
+
+    return count
+}`,
+      swift: `func countVowels(_ text: String) -> Int {
+    var count = 0
+
+    for ch in text.lowercased() {
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
+        if ch == "a" || ch == "e" || ch == "i" || ch == "o" || ch == "u" {
+            count += 1
+        }
+    }
+
+    return count
+}`,
+      php: `<?php
+function countVowels($text) {
+    $count = 0;
+
+    for ($i = 0; $i < strlen($text); $i++) {
+        $ch = strtolower($text[$i]);
+
+        // CORRECT: Checks lowercase and uppercase vowels uniformly
+        if ($ch == 'a' || $ch == 'e' || $ch == 'i' || $ch == 'o' || $ch == 'u') {
+            $count++;
+        }
+    }
+
+    return $count;
+}`,
+      ruby: `def count_vowels(text)
+  count = 0
+
+  text.downcase.each_char do |ch|
+    # CORRECT: Checks lowercase and uppercase vowels uniformly
+    if ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u'
+      count += 1
+    end
+  end
+
+  return count
+end`
     },
     predefinedFeedback: {
       wellDone: "Outstanding! You converted each character using `tolower()` from `<ctype.h>`, ensuring both uppercase ('A', 'E') and lowercase vowels are counted uniformly.",
@@ -396,7 +953,134 @@ int sumEvenNumbers(int arr[], int size) {
     for i in range(1, size + 1):
         if i < len(arr) and arr[i] > 0 and arr[i] % 2 == 0:
             total += arr[i]
-    return total`
+    return total`,
+      cpp: `#include <vector>
+using namespace std;
+
+int sumEvenNumbers(const vector<int>& arr, int size) {
+    int total = 0;
+
+    // MISTAKE HERE: Starting at i = 1 skips arr[0] and i <= size reads out of bounds!
+    for (int i = 1; i <= size; i++) {
+        int num = arr[i];
+        if (num > 0 && num % 2 == 0) {
+            total += num;
+        }
+    }
+
+    return total;
+}`,
+      java: `public class Solution {
+    public static int sumEvenNumbers(int[] arr, int size) {
+        int total = 0;
+
+        // MISTAKE HERE: Starting at i = 1 skips arr[0] and i <= size goes out of bounds!
+        for (int i = 1; i <= size; i++) {
+            int num = arr[i];
+            if (num > 0 && num % 2 == 0) {
+                total += num;
+            }
+        }
+
+        return total;
+    }
+}`,
+      csharp: `public class Solution {
+    public static int SumEvenNumbers(int[] arr, int size) {
+        int total = 0;
+
+        // MISTAKE HERE: Starting at i = 1 skips arr[0] and i <= size goes out of bounds!
+        for (int i = 1; i <= size; i++) {
+            int num = arr[i];
+            if (num > 0 && num % 2 == 0) {
+                total += num;
+            }
+        }
+
+        return total;
+    }
+}`,
+      go: `package main
+
+func sumEvenNumbers(arr []int, size int) int {
+    total := 0
+
+    // MISTAKE HERE: Starting at i = 1 skips arr[0] and i <= size goes out of bounds!
+    for i := 1; i <= size; i++ {
+        num := arr[i]
+        if num > 0 && num%2 == 0 {
+            total += num
+        }
+    }
+
+    return total
+}`,
+      rust: `pub fn sum_even_numbers(arr: &[i32], size: usize) -> i32 {
+    let mut total = 0;
+
+    // MISTAKE HERE: Starting at i = 1 skips arr[0] and 1..=size goes out of bounds!
+    for i in 1..=size {
+        let num = arr[i];
+        if num > 0 && num % 2 == 0 {
+            total += num;
+        }
+    }
+
+    return total;
+}`,
+      kotlin: `fun sumEvenNumbers(arr: IntArray, size: Int): Int {
+    var total = 0
+
+    // MISTAKE HERE: Starting at i = 1 skips arr[0] and 1..size goes out of bounds!
+    for (i in 1..size) {
+        val num = arr[i]
+        if (num > 0 && num % 2 == 0) {
+            total += num
+        }
+    }
+
+    return total
+}`,
+      swift: `func sumEvenNumbers(_ arr: [Int], _ size: Int) -> Int {
+    var total = 0
+
+    // MISTAKE HERE: Starting at i = 1 skips arr[0] and 1...size goes out of bounds!
+    for i in 1...size {
+        let num = arr[i]
+        if num > 0 && num % 2 == 0 {
+            total += num
+        }
+    }
+
+    return total
+}`,
+      php: `<?php
+function sumEvenNumbers($arr, $size) {
+    $total = 0;
+
+    // MISTAKE HERE: Starting at $i = 1 skips $arr[0] and $i <= $size reads out of bounds!
+    for ($i = 1; $i <= $size; $i++) {
+        $num = $arr[$i];
+        if ($num > 0 && $num % 2 == 0) {
+            $total += $num;
+        }
+    }
+
+    return $total;
+}`,
+      ruby: `def sum_even_numbers(arr, size)
+  total = 0
+
+  # MISTAKE HERE: Starting at 1 skips arr[0] and 1..size reads out of bounds!
+  for i in 1..size
+    num = arr[i]
+    if num && num > 0 && num % 2 == 0
+      total += num
+    end
+  end
+
+  return total
+end`
     },
     correctCode: {
       c: `#include <stdio.h>
@@ -441,7 +1125,134 @@ int sumEvenNumbers(int arr[], int size) {
     for i in range(size):
         if i < len(arr) and arr[i] > 0 and arr[i] % 2 == 0:
             total += arr[i]
-    return total`
+    return total`,
+      cpp: `#include <vector>
+using namespace std;
+
+int sumEvenNumbers(const vector<int>& arr, int size) {
+    int total = 0;
+
+    // CORRECT: Loop starts at 0 and ends strictly before size
+    for (int i = 0; i < size; i++) {
+        int num = arr[i];
+        if (num > 0 && num % 2 == 0) {
+            total += num;
+        }
+    }
+
+    return total;
+}`,
+      java: `public class Solution {
+    public static int sumEvenNumbers(int[] arr, int size) {
+        int total = 0;
+
+        // CORRECT: 0-based indexing from 0 to size - 1
+        for (int i = 0; i < size; i++) {
+            int num = arr[i];
+            if (num > 0 && num % 2 == 0) {
+                total += num;
+            }
+        }
+
+        return total;
+    }
+}`,
+      csharp: `public class Solution {
+    public static int SumEvenNumbers(int[] arr, int size) {
+        int total = 0;
+
+        // CORRECT: 0-based indexing from 0 to size - 1
+        for (int i = 0; i < size; i++) {
+            int num = arr[i];
+            if (num > 0 && num % 2 == 0) {
+                total += num;
+            }
+        }
+
+        return total;
+    }
+}`,
+      go: `package main
+
+func sumEvenNumbers(arr []int, size int) int {
+    total := 0
+
+    // CORRECT: 0-based indexing from 0 to size - 1
+    for i := 0; i < size; i++ {
+        num := arr[i]
+        if num > 0 && num%2 == 0 {
+            total += num
+        }
+    }
+
+    return total
+}`,
+      rust: `pub fn sum_even_numbers(arr: &[i32], size: usize) -> i32 {
+    let mut total = 0;
+
+    // CORRECT: 0-based indexing from 0 to size - 1
+    for i in 0..size {
+        let num = arr[i];
+        if num > 0 && num % 2 == 0 {
+            total += num;
+        }
+    }
+
+    return total;
+}`,
+      kotlin: `fun sumEvenNumbers(arr: IntArray, size: Int): Int {
+    var total = 0
+
+    // CORRECT: 0-based indexing from 0 to size - 1
+    for (i in 0 until size) {
+        val num = arr[i]
+        if (num > 0 && num % 2 == 0) {
+            total += num
+        }
+    }
+
+    return total
+}`,
+      swift: `func sumEvenNumbers(_ arr: [Int], _ size: Int) -> Int {
+    var total = 0
+
+    // CORRECT: 0-based indexing from 0 to size - 1
+    for i in 0..<size {
+        let num = arr[i]
+        if num > 0 && num % 2 == 0 {
+            total += num
+        }
+    }
+
+    return total
+}`,
+      php: `<?php
+function sumEvenNumbers($arr, $size) {
+    $total = 0;
+
+    // CORRECT: 0-based indexing from 0 to size - 1
+    for ($i = 0; $i < $size; $i++) {
+        $num = $arr[$i];
+        if ($num > 0 && $num % 2 == 0) {
+            $total += $num;
+        }
+    }
+
+    return $total;
+}`,
+      ruby: `def sum_even_numbers(arr, size)
+  total = 0
+
+  # CORRECT: 0-based indexing from 0 to size - 1
+  for i in 0...size
+    num = arr[i]
+    if num > 0 && num % 2 == 0
+      total += num
+    end
+  end
+
+  return total
+end`
     },
     predefinedFeedback: {
       wellDone: "Flawless! You corrected the loop header to `for (int i = 0; i < size; i++)`, adhering strictly to C's 0-based indexing convention.",
@@ -535,7 +1346,71 @@ void reverseArray(int arr[], int size, int result[]) {
 }`,
       python: `def reverse_array(arr: list, size: int, result: list) -> None:
     for i in range(size):
-        result[i] = arr[i]`
+        result[i] = arr[i]`,
+      cpp: `#include <vector>
+using namespace std;
+
+void reverseArray(const vector<int>& arr, int size, vector<int>& result) {
+    for (int i = 0; i < size; i++) {
+        // MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+        result[i] = arr[i];
+    }
+}`,
+      java: `public class Solution {
+    public static void reverseArray(int[] arr, int size, int[] result) {
+        for (int i = 0; i < size; i++) {
+            // MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+            result[i] = arr[i];
+        }
+    }
+}`,
+      csharp: `public class Solution {
+    public static void ReverseArray(int[] arr, int size, int[] result) {
+        for (int i = 0; i < size; i++) {
+            // MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+            result[i] = arr[i];
+        }
+    }
+}`,
+      go: `package main
+
+func reverseArray(arr []int, size int, result []int) {
+    for i := 0; i < size; i++ {
+        // MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+        result[i] = arr[i]
+    }
+}`,
+      rust: `pub fn reverse_array(arr: &[i32], size: usize, result: &mut [i32]) {
+    for i in 0..size {
+        // MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+        result[i] = arr[i];
+    }
+}`,
+      kotlin: `fun reverseArray(arr: IntArray, size: Int, result: IntArray) {
+    for (i in 0 until size) {
+        // MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+        result[i] = arr[i]
+    }
+}`,
+      swift: `func reverseArray(_ arr: [Int], _ size: Int, _ result: inout [Int]) {
+    for i in 0..<size {
+        // MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+        result[i] = arr[i]
+    }
+}`,
+      php: `<?php
+function reverseArray($arr, $size, &$result) {
+    for ($i = 0; $i < $size; $i++) {
+        // MISTAKE HERE: Copies forward $arr[$i] instead of $arr[$size - 1 - $i]
+        $result[$i] = $arr[$i];
+    }
+}`,
+      ruby: `def reverse_array(arr, size, result)
+  for i in 0...size
+    # MISTAKE HERE: Copies forward arr[i] instead of arr[size - 1 - i]
+    result[i] = arr[i]
+  end
+end`
     },
     correctCode: {
       c: `#include <stdio.h>
@@ -563,7 +1438,71 @@ void reverseArray(int arr[], int size, int result[]) {
 }`,
       python: `def reverse_array(arr: list, size: int, result: list) -> None:
     for i in range(size):
-        result[i] = arr[size - 1 - i]`
+        result[i] = arr[size - 1 - i]`,
+      cpp: `#include <vector>
+using namespace std;
+
+void reverseArray(const vector<int>& arr, int size, vector<int>& result) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for (int i = 0; i < size; i++) {
+        result[i] = arr[size - 1 - i];
+    }
+}`,
+      java: `public class Solution {
+    public static void reverseArray(int[] arr, int size, int[] result) {
+        // CORRECT: Backward indexing correctly reverses elements into result
+        for (int i = 0; i < size; i++) {
+            result[i] = arr[size - 1 - i];
+        }
+    }
+}`,
+      csharp: `public class Solution {
+    public static void ReverseArray(int[] arr, int size, int[] result) {
+        // CORRECT: Backward indexing correctly reverses elements into result
+        for (int i = 0; i < size; i++) {
+            result[i] = arr[size - 1 - i];
+        }
+    }
+}`,
+      go: `package main
+
+func reverseArray(arr []int, size int, result []int) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for i := 0; i < size; i++ {
+        result[i] = arr[size - 1 - i]
+    }
+}`,
+      rust: `pub fn reverse_array(arr: &[i32], size: usize, result: &mut [i32]) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for i in 0..size {
+        result[i] = arr[size - 1 - i];
+    }
+}`,
+      kotlin: `fun reverseArray(arr: IntArray, size: Int, result: IntArray) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for (i in 0 until size) {
+        result[i] = arr[size - 1 - i]
+    }
+}`,
+      swift: `func reverseArray(_ arr: [Int], _ size: Int, _ result: inout [Int]) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for i in 0..<size {
+        result[i] = arr[size - 1 - i]
+    }
+}`,
+      php: `<?php
+function reverseArray($arr, $size, &$result) {
+    // CORRECT: Backward indexing correctly reverses elements into result
+    for ($i = 0; $i < $size; $i++) {
+        $result[$i] = $arr[$size - 1 - $i];
+    }
+}`,
+      ruby: `def reverse_array(arr, size, result)
+  # CORRECT: Backward indexing correctly reverses elements into result
+  for i in 0...size
+    result[i] = arr[size - 1 - i]
+  end
+end`
     },
     predefinedFeedback: {
       wellDone: "Outstanding! You correctly utilized the mirror index formula `result[i] = arr[size - 1 - i];` to reverse the array into the destination buffer.",

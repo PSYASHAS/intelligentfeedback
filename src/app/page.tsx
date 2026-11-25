@@ -151,6 +151,7 @@ export default function AssessmentStudio() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           code,
+          language,
           challengeId: currentChallenge.id,
         }),
       });
