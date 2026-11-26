@@ -30,6 +30,8 @@ export default function AssessmentStudio() {
   const [testResults, setTestResults] = useState<any[]>([]);
   const [testSummary, setTestSummary] = useState<{ passed: number; failed: number; total: number } | null>(null);
   const [showTestDrawer, setShowTestDrawer] = useState(false);
+  const [wasmReport, setWasmReport] = useState<any>(null);
+  const [executionEngine, setExecutionEngine] = useState<string>('wasm');
 
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
   const [feedbackReport, setFeedbackReport] = useState<IntelligentFeedbackReport | null>(null);
@@ -159,6 +161,8 @@ export default function AssessmentStudio() {
       const execData = await execRes.json();
       setTestResults(execData.results || []);
       setTestSummary(execData.summary || null);
+      setWasmReport(execData.wasmReport || null);
+      setExecutionEngine(execData.executionEngine || 'wasm');
 
       // 2. Fetch Intelligent Feedback
       setIsLoadingFeedback(true);
@@ -279,6 +283,8 @@ export default function AssessmentStudio() {
                     testResults={testResults}
                     summary={testSummary}
                     isExecuting={isExecuting}
+                    wasmReport={wasmReport}
+                    executionEngine={executionEngine}
                   />
                 </div>
               )}

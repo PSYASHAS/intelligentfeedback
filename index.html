@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- In-Browser C to WebAssembly Compiler Engine -->
+  <script src="wasm-compiler.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -356,9 +358,10 @@
                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                 <span>Reset</span>
               </button>
-              <button onclick="runTestsAndEvaluate()" class="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#65c994] hover:bg-[#82deae] text-[#132319] font-bold text-xs sm:text-sm transition shadow-lg shadow-emerald-950/40">
+              <button onclick="runTestsAndEvaluate()" class="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-[#65c994] hover:bg-[#82deae] text-[#132319] font-bold text-xs sm:text-sm transition shadow-lg shadow-emerald-950/40" title="Compile C code to real WebAssembly and execute in browser">
                 <i data-lucide="play" class="w-4 h-4 fill-current"></i>
-                <span>Run Tests & Diagnose</span>
+                <span>Compile & Run (WASM)</span>
+                <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-[#132319] text-[#65c994]">WASM 1.0</span>
               </button>
               <button onclick="openReflectionModal()" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#303f36] hover:bg-[#3d5145] text-[#a8e7c3] border border-[#405448] font-bold text-xs transition">
                 <i data-lucide="award" class="w-4 h-4"></i>
@@ -368,9 +371,9 @@
           </div>
 
           <!-- Code Textarea with Line Numbers -->
-          <div class="relative flex font-code text-sm bg-[#101113]">
-            <div id="lineNumbers" class="select-none py-4 px-3 bg-[#151618] text-[#545b57] text-right w-12 border-r border-[#303236] text-xs leading-6"></div>
-            <textarea id="codeEditor" spellcheck="false" class="flex-1 p-4 bg-transparent text-[#e5e8e4] resize-none focus:outline-none text-xs sm:text-sm leading-6 selection:bg-emerald-500/30 whitespace-pre overflow-auto font-code h-72"></textarea>
+          <div class="relative flex font-mono text-xs sm:text-sm bg-[#101113] border-b border-[#303236] overflow-hidden">
+            <div id="lineNumbers" class="select-none py-4 px-2.5 bg-[#151618] text-[#545b57] text-right min-w-[3.25rem] border-r border-[#303236] text-xs sm:text-sm font-mono leading-6 overflow-hidden h-72"></div>
+            <textarea id="codeEditor" spellcheck="false" class="flex-1 p-4 bg-transparent text-[#e5e8e4] resize-none focus:outline-none text-xs sm:text-sm leading-6 selection:bg-emerald-500/30 whitespace-pre overflow-auto font-mono h-72"></textarea>
           </div>
         </div>
 
@@ -404,15 +407,67 @@
             </div>
           </div>
 
-          <!-- Test Case Execution Drawer -->
+          <!-- Test Case & WebAssembly Compiler Execution Drawer with 4 Tabs -->
           <div class="border-t border-[#303236] bg-[#151618] p-4 space-y-3">
-            <div class="flex items-center justify-between text-xs font-bold text-slate-300 uppercase tracking-wider">
-              <span id="testDrawerTitle">Test Suite (Ready to Run)</span>
-              <span class="text-[#717772] font-normal">Automated Unit Invariants</span>
+            <div class="flex items-center justify-between flex-wrap gap-2 text-xs font-bold text-slate-300">
+              <div class="flex items-center gap-1 bg-[#101113] p-1 rounded-xl border border-[#303236]">
+                <button id="tabBtnInvariants" onclick="switchDrawerTab('invariants')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#65c994] text-[#132319] shadow transition">
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                  <span id="testDrawerTitle">Unit Invariants</span>
+                </button>
+                <button id="tabBtnTerminal" onclick="switchDrawerTab('terminal')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition">
+                  <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+                  <span>Clang Terminal</span>
+                  <span id="badgeWarnings" class="hidden ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">0</span>
+                </button>
+                <button id="tabBtnWat" onclick="switchDrawerTab('wat')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition">
+                  <i data-lucide="binary" class="w-3.5 h-3.5"></i>
+                  <span>WebAssembly (WAT)</span>
+                </button>
+                <button id="tabBtnMemory" onclick="switchDrawerTab('memory')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition">
+                  <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                  <span>RAM Inspector</span>
+                </button>
+              </div>
+
+              <div id="compilationMetaBadge" class="flex items-center gap-2 text-[11px] text-[#8ae0b3] font-mono">
+                <span class="inline-block w-2 h-2 rounded-full bg-[#65c994] animate-pulse"></span>
+                <span id="compilationStatusText">WASM In-Browser Clang JIT</span>
+              </div>
             </div>
-            <div id="testResultsBody" class="space-y-2 max-h-56 overflow-y-auto">
-              <p class="text-xs text-slate-500 py-1">No test runs executed yet.</p>
+
+            <!-- Tab 1: Unit Invariants -->
+            <div id="tabViewInvariants" class="space-y-2 max-h-56 overflow-y-auto">
+              <div id="testResultsBody">
+                <p class="text-xs text-slate-500 py-1">Click <strong>Compile & Run (WASM)</strong> to compile C to WebAssembly and run unit invariants.</p>
+              </div>
             </div>
+
+            <!-- Tab 2: Clang Compiler Terminal -->
+            <div id="tabViewTerminal" class="hidden">
+              <div class="rounded-xl bg-[#0d0e10] border border-[#26282b] p-3 font-mono text-xs text-[#a0e4be] leading-relaxed max-h-56 overflow-y-auto whitespace-pre selection:bg-emerald-500/30">
+                <div id="terminalBody">$ clang -Wall -Wextra -std=c99 -pedantic solution.c -o solution.wasm
+Target: wasm32-unknown-wasi (Linear Memory 64KB)
+Ready to compile. Press "Compile & Run (WASM)" above.</div>
+              </div>
+            </div>
+
+            <!-- Tab 3: WebAssembly Disassembly (WAT) -->
+            <div id="tabViewWat" class="hidden">
+              <div class="rounded-xl bg-[#0d0e10] border border-[#26282b] p-3 font-mono text-xs text-slate-300 leading-relaxed max-h-56 overflow-y-auto whitespace-pre selection:bg-emerald-500/30">
+                <div id="watBody">;; WebAssembly Text representation (WAT)
+;; Disassembled WASM 1.0 instructions will be generated upon compilation.</div>
+              </div>
+            </div>
+
+            <!-- Tab 4: RAM / Linear Memory Inspector -->
+            <div id="tabViewMemory" class="hidden">
+              <div class="rounded-xl bg-[#0d0e10] border border-[#26282b] p-3 font-mono text-xs text-[#80d9ac] leading-relaxed max-h-56 overflow-y-auto whitespace-pre selection:bg-emerald-500/30">
+                <div id="memoryBody">;; WebAssembly Linear Memory (Page 0: 64KB)
+;; Offset 0x1000 holds array and string buffers. Run compilation to inspect raw byte addresses.</div>
+              </div>
+            </div>
+
           </div>
 
         </div>

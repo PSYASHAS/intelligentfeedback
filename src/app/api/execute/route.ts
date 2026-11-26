@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ASSESSMENT_CHALLENGES } from '@/lib/assessment-bank';
 import { compileAndRunSolution } from '@/lib/code-runner';
 import { tryRunNativeTests } from '@/lib/native-runner';
+import { CWasmEngine } from '@/lib/wasm-compiler';
 import { ProgrammingLanguage } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
@@ -14,6 +15,55 @@ export async function POST(req: NextRequest) {
     }
 
     const activeLang: ProgrammingLanguage = language || 'c';
+
+    // 1. In-Browser / Node WebAssembly C Compiler Engine (Instant, sandboxed, 0 server deps)
+    if (activeLang === 'c') {
+      try {
+        const wasmEngine = new CWasmEngine();
+        const wasmReport = await wasmEngine.compileAndRunTests(code || '', challenge.id, challenge.testCases);
+        const passedCount = wasmReport.results.filter((r) => r.pass).length;
+        return NextResponse.json({
+          results: wasmReport.results.map((r) => ({
+            id: r.id,
+            name: r.name,
+            passed: r.pass,
+            input: r.input,
+            expected: r.expected,
+            actual: r.actual,
+            error: r.error,
+          })),
+          summary: {
+            passed: passedCount,
+            failed: wasmReport.results.length - passedCount,
+            total: wasmReport.results.length,
+          },
+          executionEngine: 'wasm',
+          wasmReport: {
+            compileTimeMs: wasmReport.compileTimeMs,
+            binarySize: wasmReport.binarySize,
+            watText: wasmReport.watText,
+            memoryHex: wasmReport.memoryHex,
+            terminalOutput: wasmReport.terminalOutput,
+            warnings: wasmReport.warnings,
+          },
+        });
+      } catch (wasmErr: any) {
+        return NextResponse.json({
+          results: challenge.testCases.map((tc) => ({
+            id: tc.id,
+            name: tc.name,
+            passed: false,
+            input: tc.inputDescription,
+            expected: tc.expectedOutput,
+            actual: 'Compilation Error',
+            error: wasmErr.message || 'C Syntax Error',
+          })),
+          summary: { passed: 0, failed: challenge.testCases.length, total: challenge.testCases.length },
+          executionEngine: 'wasm',
+          compilationError: wasmErr,
+        });
+      }
+    }
 
     // Try genuine native compiler/runtime (gcc, g++, python, javac/java) first
     const nativeResults = await tryRunNativeTests(code || '', activeLang, challenge);

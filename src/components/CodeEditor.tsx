@@ -145,10 +145,12 @@ export function CodeEditor({
           <button
             onClick={onExecute}
             disabled={isExecuting}
-            className="flex items-center gap-1.5 px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-xs transition shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1 rounded bg-[#65c994] hover:bg-[#82deae] disabled:opacity-50 text-[#132319] font-bold text-xs transition shadow-sm"
+            title="Compile C code directly to WebAssembly and run in browser"
           >
             <Play className="h-3 w-3 fill-current" />
-            <span>{isExecuting ? 'Running...' : 'Run Tests'}</span>
+            <span>{isExecuting ? 'Compiling...' : 'Compile & Run (WASM)'}</span>
+            <span className="ml-0.5 px-1 py-0.2 rounded text-[9px] font-extrabold bg-[#132319] text-[#65c994]">WASM 1.0</span>
           </button>
           <button
             onClick={onDefend}

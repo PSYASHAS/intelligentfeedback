@@ -652,23 +652,45 @@ function resetStarterCode() {
 
 function setupLineNumbers() {
   const editor = document.getElementById('codeEditor');
-  editor.addEventListener('input', updateLineNumbers);
-  editor.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const start = editor.selectionStart;
-      const end = editor.selectionEnd;
-      editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
-      editor.selectionStart = editor.selectionEnd = start + 4;
+  const gutter = document.getElementById('lineNumbers');
+
+  const syncGutterScroll = () => {
+    if (gutter && editor) {
+      gutter.scrollTop = editor.scrollTop;
     }
-  });
+  };
+
+  if (editor) {
+    editor.addEventListener('scroll', syncGutterScroll);
+    editor.addEventListener('input', () => {
+      updateLineNumbers();
+      syncGutterScroll();
+    });
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 4;
+        updateLineNumbers();
+        syncGutterScroll();
+      }
+    });
+  }
+
+  updateLineNumbers();
 }
 
 function updateLineNumbers() {
   const editor = document.getElementById('codeEditor');
+  if (!editor) return;
   const lines = editor.value.split('\n').length;
   const gutter = document.getElementById('lineNumbers');
-  gutter.innerHTML = Array.from({ length: lines }, (_, i) => `<div>${i + 1}</div>`).join('');
+  if (!gutter) return;
+
+  gutter.innerHTML = Array.from({ length: lines }, (_, i) => `<div class="h-6 leading-6 text-right">${i + 1}</div>`).join('') + '<div class="h-10"></div>';
+  gutter.scrollTop = editor.scrollTop;
 }
 
 // --- MISTAKE-TO-MASTERY TRACKER STATE ---
@@ -941,26 +963,181 @@ function compileAndRunSolution(code, language, challengeKey) {
   return sandbox();
 }
 
-// --- TEST RUNNER & FORMATIVE FEEDBACK GENERATOR ---
-function runTestsAndEvaluate() {
+// --- DRAWER TAB SWITCHER (WASM, TERMINAL, WAT, RAM) ---
+let currentDrawerTab = 'invariants';
+
+function switchDrawerTab(tab) {
+  currentDrawerTab = tab;
+  const tabBtnInvariants = document.getElementById('tabBtnInvariants');
+  const tabBtnTerminal = document.getElementById('tabBtnTerminal');
+  const tabBtnWat = document.getElementById('tabBtnWat');
+  const tabBtnMemory = document.getElementById('tabBtnMemory');
+
+  const tabViewInvariants = document.getElementById('tabViewInvariants');
+  const tabViewTerminal = document.getElementById('tabViewTerminal');
+  const tabViewWat = document.getElementById('tabViewWat');
+  const tabViewMemory = document.getElementById('tabViewMemory');
+
+  const activeCls = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold bg-[#65c994] text-[#132319] shadow transition";
+  const inactiveCls = "flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition";
+
+  if (tabBtnInvariants) tabBtnInvariants.className = tab === 'invariants' ? activeCls : inactiveCls;
+  if (tabBtnTerminal) tabBtnTerminal.className = tab === 'terminal' ? activeCls : inactiveCls;
+  if (tabBtnWat) tabBtnWat.className = tab === 'wat' ? activeCls : inactiveCls;
+  if (tabBtnMemory) tabBtnMemory.className = tab === 'memory' ? activeCls : inactiveCls;
+
+  if (tabViewInvariants) tabViewInvariants.className = tab === 'invariants' ? "space-y-2 max-h-56 overflow-y-auto" : "hidden";
+  if (tabViewTerminal) tabViewTerminal.className = tab === 'terminal' ? "" : "hidden";
+  if (tabViewWat) tabViewWat.className = tab === 'wat' ? "" : "hidden";
+  if (tabViewMemory) tabViewMemory.className = tab === 'memory' ? "" : "hidden";
+
+  if (window.lucide) lucide.createIcons();
+}
+
+// --- TEST RUNNER & FORMATIVE FEEDBACK GENERATOR (WASM + MULTI-LANG) ---
+async function runTestsAndEvaluate() {
   const code = document.getElementById('codeEditor').value;
   const drawerBody = document.getElementById('testResultsBody');
   const title = document.getElementById('testDrawerTitle');
+  const terminalBody = document.getElementById('terminalBody');
+  const watBody = document.getElementById('watBody');
+  const memoryBody = document.getElementById('memoryBody');
+  const badgeWarnings = document.getElementById('badgeWarnings');
+  const compStatus = document.getElementById('compilationStatusText');
 
+  // 1. REAL IN-BROWSER C TO WEBASSEMBLY COMPILATION
+  if (currentLanguage === 'c' && typeof CWasmEngine !== 'undefined') {
+    const wasmEngine = new CWasmEngine();
+    try {
+      const wasmResult = await wasmEngine.compileAndRunTests(code, currentChallengeKey, currentChallenge.testCases);
+
+      // Populate WebAssembly Disassembly (WAT)
+      if (watBody) watBody.innerText = wasmResult.watText;
+
+      // Populate Linear Memory RAM Inspector
+      if (memoryBody) memoryBody.innerText = wasmResult.memoryHex;
+
+      // Populate Clang Terminal Diagnostic
+      if (terminalBody) terminalBody.innerText = wasmResult.terminalOutput;
+
+      // Update compilation status badge
+      if (compStatus) {
+        compStatus.innerText = `WASM 1.0 (${wasmResult.binarySize}B in ${wasmResult.compileTimeMs}ms)`;
+      }
+
+      // Update compiler warning badge
+      if (badgeWarnings) {
+        if (wasmResult.warnings && wasmResult.warnings.length > 0) {
+          badgeWarnings.innerText = String(wasmResult.warnings.length);
+          badgeWarnings.classList.remove('hidden');
+        } else {
+          badgeWarnings.classList.add('hidden');
+        }
+      }
+
+      // Render Test Cards
+      let passedCount = 0;
+      const cards = wasmResult.results.map((res) => {
+        if (res.pass) passedCount++;
+        return `
+          <div class="p-3 rounded-xl border text-xs sm:text-sm font-code transition ${res.pass ? 'bg-emerald-950/20 border-emerald-500/30 text-slate-200' : 'bg-rose-950/20 border-rose-500/30 text-slate-200'}">
+            <div class="flex items-center justify-between font-sans mb-1.5">
+              <span class="font-bold flex items-center gap-1.5 ${res.pass ? 'text-emerald-400' : 'text-rose-400'}">
+                <i data-lucide="${res.pass ? 'check-circle-2' : 'x-circle'}" class="w-4 h-4"></i>
+                ${res.name}
+              </span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full uppercase ${res.pass ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                ${res.pass ? 'PASS' : 'FAIL'}
+              </span>
+            </div>
+            <div class="text-xs text-slate-300 space-y-1">
+              <div><span class="text-slate-500 font-sans">Input: </span><code class="text-slate-200">${res.input}</code></div>
+              <div><span class="text-slate-500 font-sans">Expected: </span><span class="text-emerald-400 font-semibold">${res.expected}</span></div>
+              <div><span class="text-slate-500 font-sans">Actual: </span><span class="${res.pass ? 'text-emerald-400' : 'text-rose-400 font-bold'}">${res.actual}</span></div>
+            </div>
+          </div>
+        `;
+      });
+
+      if (drawerBody) drawerBody.innerHTML = cards.join('');
+      const total = currentChallenge.testCases.length;
+      if (title) title.innerText = `Unit Invariants (${passedCount}/${total} Passed)`;
+
+      generateFormativeFeedback(code, passedCount, total);
+
+      if (passedCount === total) {
+        advanceMastery('practised');
+      } else if (passedCount > 0) {
+        advanceMastery('corrected');
+      }
+
+      if (window.lucide) lucide.createIcons();
+      return;
+    } catch (compileErr) {
+      const errLine = compileErr.line || 1;
+      const errCol = compileErr.col || 1;
+      const errMsg = compileErr.message || 'C Compilation Error';
+      const lines = code.split('\n');
+      const offendingLine = lines[errLine - 1] || '';
+      const caret = ' '.repeat(Math.max(0, errCol - 1)) + '^';
+
+      const clangError = [
+        `$ clang -Wall -Wextra -std=c99 -pedantic solution.c -o solution.wasm`,
+        `solution.c:${errLine}:${errCol}: error: ${errMsg}`,
+        `    ${offendingLine}`,
+        `    ${caret}`,
+        `1 error generated. Compilation terminated.`
+      ].join('\n');
+
+      if (terminalBody) terminalBody.innerText = clangError;
+      if (compStatus) compStatus.innerText = 'Compilation Failed (1 Error)';
+      if (badgeWarnings) {
+        badgeWarnings.innerText = '!';
+        badgeWarnings.classList.remove('hidden');
+      }
+
+      if (drawerBody) {
+        drawerBody.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/40 text-rose-300 text-xs sm:text-sm">
+            <strong class="font-bold flex items-center gap-1.5 mb-1 text-rose-400">
+              <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+              Clang Compilation / Syntax Error (Line ${errLine}:${errCol})
+            </strong>
+            <p class="font-mono text-xs text-rose-200 mt-1">${errMsg}</p>
+            <p class="text-xs text-slate-400 mt-2 font-sans">Check the <strong>Clang Terminal</strong> tab for caret diagnostics.</p>
+          </div>
+        `;
+      }
+      if (title) title.innerText = 'Compilation Error';
+
+      // Show formative feedback on compiler error
+      generateFormativeFeedback(code, 0, currentChallenge.testCases.length, compileErr);
+      if (window.lucide) lucide.createIcons();
+      return;
+    }
+  }
+
+  // 2. MULTI-LANGUAGE SANDBOX RUNNER (For JS, Python, Rust, Go, etc.)
   let studentFn = null;
   try {
     studentFn = compileAndRunSolution(code, currentLanguage, currentChallengeKey);
+    if (terminalBody) {
+      terminalBody.innerText = `$ ${currentLanguage} --eval solution\nCompilation clean. Executing unit test suite.`;
+    }
+    if (compStatus) compStatus.innerText = `${LANGUAGE_LABELS[currentLanguage]} Execution`;
   } catch (err) {
-    drawerBody.innerHTML = `
-      <div class="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/40 text-rose-300 text-xs sm:text-sm">
-        <strong class="font-bold flex items-center gap-1.5 mb-1 text-rose-400">
-          <i data-lucide="alert-octagon" class="w-4 h-4"></i>
-          ${LANGUAGE_LABELS[currentLanguage] || 'Code'} Compilation / Syntax Error
-        </strong>
-        <span>${err.message}</span>
-      </div>`;
-    title.innerText = `Test Suite (${LANGUAGE_LABELS[currentLanguage] || 'Code'} Compilation Error)`;
-    lucide.createIcons();
+    if (drawerBody) {
+      drawerBody.innerHTML = `
+        <div class="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/40 text-rose-300 text-xs sm:text-sm">
+          <strong class="font-bold flex items-center gap-1.5 mb-1 text-rose-400">
+            <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+            ${LANGUAGE_LABELS[currentLanguage] || 'Code'} Compilation / Syntax Error
+          </strong>
+          <span>${err.message}</span>
+        </div>`;
+    }
+    if (title) title.innerText = `Compilation Error`;
+    if (window.lucide) lucide.createIcons();
     return;
   }
 
@@ -998,15 +1175,13 @@ function runTestsAndEvaluate() {
     `;
   });
 
-  drawerBody.innerHTML = cards.join('');
+  if (drawerBody) drawerBody.innerHTML = cards.join('');
   const total = currentChallenge.testCases.length;
-  title.innerText = `Test Suite Execution (${passedCount}/${total} Passed)`;
-  lucide.createIcons();
+  if (title) title.innerText = `Unit Invariants (${passedCount}/${total} Passed)`;
+  if (window.lucide) lucide.createIcons();
 
-  // Generate 4-Part Formative Feedback that matches the C code accurately
   generateFormativeFeedback(code, passedCount, total);
 
-  // Advance Progress Tracker
   if (passedCount === total) {
     advanceMastery('practised');
   } else if (passedCount > 0) {
@@ -1015,13 +1190,34 @@ function runTestsAndEvaluate() {
 }
 
 // --- 4-PART FORMATIVE FEEDBACK ENGINE (MULTI-LANGUAGE) ---
-function generateFormativeFeedback(code, passed, total) {
+function generateFormativeFeedback(code, passed, total, compileError = null) {
   const langName = LANGUAGE_LABELS[currentLanguage] || 'C';
   let wellDone = "";
   let problem = "";
   let why = "";
   let improvement = "";
   let nextStep = "";
+
+  if (compileError) {
+    wellDone = `Your ${langName} code was submitted to the in-browser Clang / WebAssembly compiler.`;
+    problem = `Compilation failed on line ${compileError.line || 1}, col ${compileError.col || 1}: "${compileError.message || 'Syntax Error'}".`;
+    why = "In C99/C11, the compiler strictly enforces punctuation: all statements must terminate with a semicolon ';', types must match, and parentheses/braces must balance.";
+    improvement = `Examine line ${compileError.line || 1} in the code editor, resolve the syntax mismatch, and click 'Compile & Run (WASM)'.`;
+    nextStep = "Click the 'Clang Terminal' tab below to view the compiler error and caret pointer ^.";
+
+    currentFeedbackReport = {
+      passed: 0,
+      total,
+      score: 0,
+      wellDone,
+      problem,
+      why,
+      improvement,
+      nextStep
+    };
+    renderFormativeFeedbackUI();
+    return;
+  }
 
   // ================= LAB 1: FIND MAX =================
   if (currentChallengeKey === 'find_max') {
@@ -1224,13 +1420,26 @@ function resetFeedbackUI() {
       </div>
       <p class="text-slate-200 font-semibold text-sm">Ready to Diagnose Your C Solution</p>
       <p class="text-xs text-[#90948f] max-w-sm mx-auto leading-relaxed">
-        Click <strong class="text-[#8ae0b3] font-semibold">Run Tests & Diagnose</strong> above to evaluate your C code against boundary tests and receive structured formative feedback.
+        Click <strong class="text-[#8ae0b3] font-semibold">Compile & Run (WASM)</strong> above to compile your C code to real WebAssembly and receive structured formative feedback.
       </p>
     </div>
   `;
-  document.getElementById('testDrawerTitle').innerText = 'Test Suite (Ready to Run)';
-  document.getElementById('testResultsBody').innerHTML = '<p class="text-slate-500 text-center py-2 text-xs">Click "Run Tests & Diagnose" to evaluate your C code.</p>';
-  lucide.createIcons();
+  const title = document.getElementById('testDrawerTitle');
+  if (title) title.innerText = 'Unit Invariants';
+  const testResultsBody = document.getElementById('testResultsBody');
+  if (testResultsBody) testResultsBody.innerHTML = '<p class="text-slate-500 text-center py-2 text-xs">Click "Compile & Run (WASM)" to evaluate your C code.</p>';
+  const terminalBody = document.getElementById('terminalBody');
+  if (terminalBody) terminalBody.innerText = `$ clang -Wall -Wextra -std=c99 -pedantic solution.c -o solution.wasm\nTarget: wasm32-unknown-wasi (Linear Memory 64KB)\nReady to compile. Press "Compile & Run (WASM)" above.`;
+  const watBody = document.getElementById('watBody');
+  if (watBody) watBody.innerText = ';; WebAssembly Text representation (WAT)\n;; Disassembled WASM 1.0 instructions will be generated upon compilation.';
+  const memoryBody = document.getElementById('memoryBody');
+  if (memoryBody) memoryBody.innerText = ';; WebAssembly Linear Memory (Page 0: 64KB)\n;; Offset 0x1000 holds array and string buffers. Run compilation to inspect raw byte addresses.';
+  const badgeWarnings = document.getElementById('badgeWarnings');
+  if (badgeWarnings) badgeWarnings.classList.add('hidden');
+  const compStatus = document.getElementById('compilationStatusText');
+  if (compStatus) compStatus.innerText = 'WASM In-Browser Clang JIT';
+  switchDrawerTab('invariants');
+  if (window.lucide) lucide.createIcons();
 }
 
 // --- EDUCATOR DESIGN STUDIO & BLOOM'S BREAKDOWN ---
